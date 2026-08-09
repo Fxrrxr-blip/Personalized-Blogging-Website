@@ -1065,47 +1065,124 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<{ email: string; username: string } | null>(null)
 
-  const handleSavePost = (newPost: any) => {
-    setPosts([newPost, ...posts])
-    try {
-      const existing = JSON.parse(localStorage.getItem('blog_admin_posts') || '[]')
-      localStorage.setItem('blog_admin_posts', JSON.stringify([newPost, ...existing]))
-    } catch { /* ignore */ }
+const handleSavePost = async (newPost: any) => {
+  setPosts((prevPosts) => [newPost, ...prevPosts]);
+
+  try {
+    // Send post to FastAPI backend
+    await fetch(`${API_BASE_URL}/api/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPost),
+    });
+  } catch (err) {
+    console.error("Failed to save post to backend server:", err);
   }
+
+  try {
+    const existing = JSON.parse(localStorage.getItem('blog_admin_posts') || '[]');
+    localStorage.setItem('blog_admin_posts', JSON.stringify([newPost, ...existing]));
+  } catch { /* ignore */ }
+};
 
   return (
     <div className={`min-h-screen ${dark ? 'dark' : ''}`} style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
       <Nav
-        page={page}
-        setPage={setPage}
-        dark={dark}
-        setDark={setDark}
-        currentUser={currentUser}
-        onOpenAuth={() => setIsAuthOpen(true)}
-      />
+  page={page}
+  setPage={setPage}
+  dark={dark}
+  setDark={setDark}
+  currentUser={currentUser}
+  onOpenAuth={() => setIsAuthOpen(true)}
+/>
 
-      {page === 'Home' && <HomePage setPage={setPage} setPost={setSelectedPost} extraPosts={posts} />}
+<main className="max-w-5xl mx-auto px-6 py-8">
+  {/* 1. HOME VIEW */}
+  {page === 'Home' && (
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {posts.map((post) => (
+        <div key={post.id} className="border rounded-lg p-4 bg-white shadow-sm">
+          <h3 className="font-bold text-lg">{post.title}</h3>
+          <p className="text-stone-600 text-sm mt-2">{post.excerpt}</p>
+        </div>
+      ))}
+    </section>
+  )}
 
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setIsCreateOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg font-mono text-xs tracking-wider uppercase text-white bg-[#8B9E7E] hover:scale-105 transition-transform"
-      >
-        <span className="text-base font-bold">+</span> Write Post
-      </button>
+  {/* 2. JOURNAL VIEW */}
+  {page === 'Journal' && (
+    <section>
+      <h1 className="text-4xl font-serif font-bold">Journal</h1>
+      <p className="text-stone-500 mt-1 mb-6">Things I've written down so I don't forget them.</p>
 
-      {/* Modals */}
-      <CreatePostModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onSave={handleSavePost}
-      />
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search posts..."
+          className="w-full max-w-md p-3 bg-stone-100 rounded-lg text-sm outline-none"
+        />
+      </div>
 
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onLoginSuccess={(user) => setCurrentUser(user)}
-      />
-    </div>
+      <div className="flex gap-2 flex-wrap mb-8">
+        {['All', 'Personal', 'Technology', 'Programming', 'Projects', 'College', 'Ideas', 'Lessons', 'Random'].map((tag) => (
+          <span key={tag} className="px-3 py-1 bg-stone-200 text-xs rounded cursor-pointer hover:bg-stone-300">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {posts.map((post) => (
+          <div key={post.id} className="border rounded-lg p-4 bg-white shadow-sm">
+            <h3 className="font-bold text-lg">{post.title}</h3>
+            <p className="text-stone-600 text-sm mt-2">{post.excerpt}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {/* 3. PROJECTS VIEW */}
+  {page === 'Projects' && (
+    <section>
+      <h1 className="text-4xl font-serif font-bold">Projects</h1>
+      <p className="text-stone-500 mt-1 mb-6">Things I've built, half-built, or am in the middle of building.</p>
+
+      <div className="flex gap-2 flex-wrap mb-8">
+        {['All', 'Python', 'Web Development', 'AI', 'Automation', 'Experiments', 'Personal Tools'].map((tag) => (
+          <span key={tag} className="px-3 py-1 bg-stone-200 text-xs rounded cursor-pointer hover:bg-stone-300">
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {posts.filter(p => p.category?.toLowerCase() === 'projects').map((post) => (
+          <div key={post.id} className="border rounded-lg p-4 bg-white shadow-sm">
+            <h3 className="font-bold text-lg">{post.title}</h3>
+            <p className="text-stone-600 text-sm mt-2">{post.excerpt}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {/* 4. THOUGHTS VIEW */}
+  {page === 'Thoughts' && (
+    <section>
+      <h1 className="text-4xl font-serif font-bold">Thoughts</h1>
+      <p className="text-stone-500 mt-1 mb-6">Things I was thinking about at 2am.</p>
+    </section>
+  )}
+
+  {/* 5. ABOUT VIEW */}
+  {page === 'About' && (
+    <section>
+      <h1 className="text-4xl font-serif font-bold mb-4">About Me</h1>
+      <p className="text-stone-700">This website is my corner of the internet...</p>
+    </section>
+  )}
+</main>
+</div>
   )
 }
