@@ -1099,44 +1099,126 @@ const handleSavePost = async (newPost: any) => {
 <main className="max-w-5xl mx-auto px-6 py-8">
   {/* 1. HOME VIEW */}
   {page === 'Home' && (
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {posts.map((post) => (
-        <div key={post.id} className="border rounded-lg p-4 bg-white shadow-sm">
-          <h3 className="font-bold text-lg">{post.title}</h3>
-          <p className="text-stone-600 text-sm mt-2">{post.excerpt}</p>
+    <section className="space-y-12">
+      {/* Featured / Hero Post */}
+      {posts.length > 0 && (
+        <div 
+          onClick={() => setSelectedPost(posts[0])}
+          className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+        >
+          {posts[0].image && (
+            <div className="aspect-[21/9] w-full overflow-hidden bg-stone-100">
+              <img 
+                src={posts[0].image} 
+                alt={posts[0].title} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          )}
+          <div className="p-8">
+            <div className="flex items-center gap-3 text-xs text-stone-500 mb-3">
+              {posts[0].category && <span className="uppercase tracking-wider font-semibold text-stone-700">{posts[0].category}</span>}
+              {posts[0].date && <span>• {posts[0].date}</span>}
+            </div>
+            <h2 className="text-3xl font-serif font-bold text-stone-900 group-hover:text-stone-600 transition-colors">
+              {posts[0].title}
+            </h2>
+            <p className="text-stone-600 mt-3 leading-relaxed text-base">{posts[0].excerpt}</p>
+          </div>
         </div>
-      ))}
+      )}
+
+      {/* Grid of Remaining Posts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {posts.slice(1).map((post) => (
+          <article 
+            key={post.id} 
+            onClick={() => setSelectedPost(post)}
+            className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+          >
+            {post.image && (
+              <div className="aspect-[16/9] w-full overflow-hidden bg-stone-100">
+                <img 
+                  src={post.image} 
+                  alt={post.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            )}
+            <div className="p-6 flex-1 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-xs text-stone-500 mb-2">
+                  {post.category && <span className="uppercase tracking-wider font-semibold text-stone-700">{post.category}</span>}
+                  {post.date && <span>• {post.date}</span>}
+                </div>
+                <h3 className="font-serif font-bold text-xl text-stone-900 group-hover:text-stone-600 transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-stone-600 text-sm mt-2 line-clamp-3 leading-relaxed">{post.excerpt}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   )}
 
   {/* 2. JOURNAL VIEW */}
   {page === 'Journal' && (
     <section>
-      <h1 className="text-4xl font-serif font-bold">Journal</h1>
-      <p className="text-stone-500 mt-1 mb-6">Things I've written down so I don't forget them.</p>
+      <h1 className="text-5xl font-serif font-bold text-stone-900">Journal</h1>
+      <p className="text-stone-500 mt-2 mb-8 text-base">Things I've written down so I don't forget them.</p>
 
+      {/* Search Input */}
       <div className="mb-6">
         <input
           type="text"
           placeholder="Search posts..."
-          className="w-full max-w-md p-3 bg-stone-100 rounded-lg text-sm outline-none"
+          className="w-full max-w-md p-3.5 bg-stone-100/80 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all"
         />
       </div>
 
-      <div className="flex gap-2 flex-wrap mb-8">
-        {['All', 'Personal', 'Technology', 'Programming', 'Projects', 'College', 'Ideas', 'Lessons', 'Random'].map((tag) => (
-          <span key={tag} className="px-3 py-1 bg-stone-200 text-xs rounded cursor-pointer hover:bg-stone-300">
+      {/* Sub-category Filter Pills */}
+      <div className="flex gap-2 flex-wrap mb-10">
+        {['All', 'Personal', 'Technology', 'Programming', 'Projects', 'College', 'Ideas', 'Lessons', 'Random'].map((tag, idx) => (
+          <button
+            key={tag}
+            className={`px-3.5 py-1.5 text-xs rounded-full border transition-colors ${
+              idx === 0 
+                ? 'bg-stone-800 text-white border-stone-800' 
+                : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-200'
+            }`}
+          >
             {tag}
-          </span>
+          </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Journal Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {posts.map((post) => (
-          <div key={post.id} className="border rounded-lg p-4 bg-white shadow-sm">
-            <h3 className="font-bold text-lg">{post.title}</h3>
-            <p className="text-stone-600 text-sm mt-2">{post.excerpt}</p>
-          </div>
+          <article 
+            key={post.id} 
+            onClick={() => setSelectedPost(post)}
+            className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+          >
+            {post.image && (
+              <div className="aspect-[16/9] w-full overflow-hidden bg-stone-100">
+                <img 
+                  src={post.image} 
+                  alt={post.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            )}
+            <div className="p-6">
+              <span className="text-xs uppercase tracking-wider text-stone-500 font-semibold">{post.category || 'Journal'}</span>
+              <h3 className="font-serif font-bold text-xl text-stone-900 mt-1 group-hover:text-stone-600 transition-colors">
+                {post.title}
+              </h3>
+              <p className="text-stone-600 text-sm mt-2 line-clamp-2">{post.excerpt}</p>
+            </div>
+          </article>
         ))}
       </div>
     </section>
@@ -1145,22 +1227,43 @@ const handleSavePost = async (newPost: any) => {
   {/* 3. PROJECTS VIEW */}
   {page === 'Projects' && (
     <section>
-      <h1 className="text-4xl font-serif font-bold">Projects</h1>
-      <p className="text-stone-500 mt-1 mb-6">Things I've built, half-built, or am in the middle of building.</p>
+      <h1 className="text-5xl font-serif font-bold text-stone-900">Projects</h1>
+      <p className="text-stone-500 mt-2 mb-8 text-base">Things I've built, half-built, or am in the middle of building.</p>
 
-      <div className="flex gap-2 flex-wrap mb-8">
-        {['All', 'Python', 'Web Development', 'AI', 'Automation', 'Experiments', 'Personal Tools'].map((tag) => (
-          <span key={tag} className="px-3 py-1 bg-stone-200 text-xs rounded cursor-pointer hover:bg-stone-300">
+      {/* Category Pills */}
+      <div className="flex gap-2 flex-wrap mb-10">
+        {['All', 'Python', 'Web Development', 'AI', 'Automation', 'Experiments', 'Personal Tools'].map((tag, idx) => (
+          <button
+            key={tag}
+            className={`px-3.5 py-1.5 text-xs rounded-full border transition-colors ${
+              idx === 0 
+                ? 'bg-stone-800 text-white border-stone-800' 
+                : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-200'
+            }`}
+          >
             {tag}
-          </span>
+          </button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {posts.filter((p) => p.category?.toLowerCase() === 'projects' || p.tags?.includes('projects')).map((post) => (
-          <div key={post.id} className="border rounded-lg p-4 bg-white shadow-sm">
-            <h3 className="font-bold text-lg">{post.title}</h3>
-            <p className="text-stone-600 text-sm mt-2">{post.excerpt}</p>
+      {/* Projects Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {posts.map((post) => (
+          <div key={post.id} className="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all">
+            {post.image && (
+              <div className="aspect-[16/9] w-full overflow-hidden bg-stone-100">
+                <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div className="p-6 flex items-center justify-between">
+              <div>
+                <h3 className="font-serif font-bold text-xl text-stone-900">{post.title}</h3>
+                <p className="text-stone-600 text-sm mt-1">{post.excerpt}</p>
+              </div>
+              <span className="px-2.5 py-1 bg-stone-100 text-stone-600 text-xs font-mono uppercase tracking-wider rounded">
+                Active
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -1170,16 +1273,51 @@ const handleSavePost = async (newPost: any) => {
   {/* 4. THOUGHTS VIEW */}
   {page === 'Thoughts' && (
     <section>
-      <h1 className="text-4xl font-serif font-bold">Thoughts</h1>
-      <p className="text-stone-500 mt-1 mb-6">Things I was thinking about at 2am.</p>
+      <h1 className="text-5xl font-serif font-bold text-stone-900">Thoughts</h1>
+      <p className="text-stone-500 mt-2 mb-10 text-base">Things I was thinking about at 2am.</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { quote: "The best way to understand something is to try to explain it to someone who doesn't already agree with you.", date: "Aug 3", tag: "IDEAS" },
+          { quote: "The best codebases read like they were written by someone who didn't need to prove anything.", date: "Jul 9", tag: "PROGRAMMING" },
+          { quote: "College is mostly about learning how to exist in proximity to people who think differently than you. The coursework is secondary.", date: "Jun 13", tag: "COLLEGE" },
+        ].map((item, idx) => (
+          <div key={idx} className="p-6 bg-stone-50 border border-stone-200 rounded-xl flex flex-col justify-between space-y-6">
+            <p className="font-serif italic text-stone-800 leading-relaxed text-base">"{item.quote}"</p>
+            <div className="flex items-center justify-between text-xs text-stone-400">
+              <span>{item.date}</span>
+              <span className="px-2 py-0.5 bg-stone-200 text-stone-600 font-mono rounded text-[10px] uppercase">{item.tag}</span>
+            </div>
+          </div>
+        ))}
+      </div>
     </section>
   )}
 
   {/* 5. ABOUT VIEW */}
   {page === 'About' && (
-    <section>
-      <h1 className="text-4xl font-serif font-bold mb-4">About Me</h1>
-      <p className="text-stone-700">This website is my corner of the internet...</p>
+    <section className="max-w-3xl">
+      <h1 className="text-5xl font-serif font-bold text-stone-900 mb-8">About Me</h1>
+      
+      <div className="flex flex-col md:flex-row gap-8 items-start mb-8">
+        <div className="w-48 h-48 rounded-xl overflow-hidden bg-stone-200 flex-shrink-0 border border-stone-300">
+          <img 
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&fit=crop" 
+            alt="Alex Nichols" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="space-y-4 text-stone-700 leading-relaxed">
+          <h2 className="text-2xl font-serif font-bold text-stone-900">Alex Nichols</h2>
+          <p className="text-sm text-stone-500 font-mono">Edinburgh, Scotland • CS Student</p>
+          <p>
+            I study computer science by day and build small personal tools by night. I take long walks, read a lot (mostly history and science writing), and maintain a daily journal that has slowly become my most important habit.
+          </p>
+          <p>
+            This website is my corner of the internet — a place to document thoughts, projects, experiments, and the small things I keep noticing.
+          </p>
+        </div>
+      </div>
     </section>
   )}
 </main>
