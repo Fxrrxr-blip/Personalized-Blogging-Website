@@ -1,0 +1,10 @@
+{
+  "description": "Create and share personal stories, insights, and experiences with a user-friendly blogging platform designed for individuals seeking to connect and engage.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
