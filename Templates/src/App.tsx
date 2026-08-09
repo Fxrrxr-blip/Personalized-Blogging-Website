@@ -1157,7 +1157,7 @@ const handleSavePost = async (newPost: any) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {posts.filter(p => p.category?.toLowerCase() === 'projects').map((post) => (
+        {posts.filter((p) => p.category?.toLowerCase() === 'projects' || p.tags?.includes('projects')).map((post) => (
           <div key={post.id} className="border rounded-lg p-4 bg-white shadow-sm">
             <h3 className="font-bold text-lg">{post.title}</h3>
             <p className="text-stone-600 text-sm mt-2">{post.excerpt}</p>
