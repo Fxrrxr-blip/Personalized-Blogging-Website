@@ -2,9 +2,22 @@ import secrets
 from datetime import datetime
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Header, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 
 app = FastAPI(title="Blog Engine API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def root():
+    return {"status": "API is online", "docs": "/docs"}
 
 # ─── Security & Models ────────────────────────────────────────────────────────
 
