@@ -1,6 +1,5 @@
-// Example inside your AuthModal component
 import React, { useState } from "react";
-import { authRequest } from "./api";
+import { API_BASE_URL, authRequest } from "./api";
 
 export function AuthModal() {
   const [isSignUp, setIsSignUp] = useState(false);
