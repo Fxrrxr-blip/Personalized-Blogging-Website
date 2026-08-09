@@ -1,12 +1,13 @@
 import secrets
 from datetime import datetime
 from typing import List, Optional
+from pydantic import BaseModel, EmailStr
 from fastapi import FastAPI, HTTPException, Header, Query, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr
 
 app = FastAPI(title="Blog Engine API")
 
+# Enable CORS for Vercel and local testing
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
