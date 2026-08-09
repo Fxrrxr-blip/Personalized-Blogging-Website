@@ -1,7 +1,7 @@
 // src/api.ts
 
 export const API_BASE_URL = 
-  (import.meta as any).env?.VITE_API_URL || "https://personalized-blogging-website.onrender.com";
+(import.meta as any).env?.VITE_API_URL || "https://personalized-blogging-website.onrender.com";
 
 /**
  * Helper function for authentication requests
