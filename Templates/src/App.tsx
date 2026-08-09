@@ -4,26 +4,45 @@ import { AuthModal as RemoteAuthModal } from "./AuthModal";
 import Admin, { type AdminPost } from './Admin';
 
 function useAdminPosts(): AdminPost[] {
-  const [posts, setPosts] = useState<AdminPost[]>([])
-  useEffect(() => {
-    const load = () => {
-      try {
-        const raw = localStorage.getItem('blog_admin_posts')
-        if (raw) setPosts(JSON.parse(raw))
-      } catch { /* ignore */ }
-    }
-    load()
-    window.addEventListener('storage', load)
-    return () => window.removeEventListener('storage', load)
-  }, [])
-  return posts.filter(p => p.status === 'published' && p.visibility === 'public')
-}
+  const [posts, setPosts] = useState<AdminPost[]>([]);
 
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/posts`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPosts(data as AdminPost[]);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Error loading posts from API:", err);
+      }
+
+      try {
+        const raw = localStorage.getItem('blog_admin_posts');
+        if (raw) {
+          setPosts(JSON.parse(raw));
+        } else {
+          setPosts(INITIAL_POSTS as AdminPost[]);
+        }
+      } catch {
+        setPosts(INITIAL_POSTS as AdminPost[]);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  return posts.filter(p => p.status === 'published' && p.visibility === 'public');
+}
 // ─── Data ───────────────────────────────────────────────────────────────────
 
 const INITIAL_POSTS = [
   {
-    id: 1,
+    id: '1',
     title: 'On the quiet discipline of keeping a journal',
     excerpt: 'Three years ago I started writing every morning before opening my laptop. I never expected it would change how I think.',
     category: 'Personal',
@@ -254,7 +273,7 @@ Personal: health, relationships, things that make me a person rather than a prod
 
 The results were quietly significant. I stopped carrying guilt about undone tasks as much, because the format made it structurally clear that I'd made explicit choices about what today was for.`,
   },
-]
+] as unknown as AdminPost[];
 
 const THOUGHTS = [
   { id: 1, text: 'The best way to understand something is to try to explain it to someone who doesn\'t already agree with you.', date: 'Aug 3', tags: ['ideas'] },
