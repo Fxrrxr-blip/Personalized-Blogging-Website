@@ -1,5 +1,8 @@
+
+import { AuthModal as RemoteAuthModal } from "./AuthModal";
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Admin, { type AdminPost } from './Admin'
+
 
 function useAdminPosts(): AdminPost[] {
   const [posts, setPosts] = useState<AdminPost[]>([])
