@@ -1,8 +1,7 @@
-
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { API_BASE_URL } from "./api";
 import { AuthModal as RemoteAuthModal } from "./AuthModal";
-import { useState, useEffect, useRef, useCallback } from 'react'
-import Admin, { type AdminPost } from './Admin'
-
+import Admin, { type AdminPost } from './Admin';
 
 function useAdminPosts(): AdminPost[] {
   const [posts, setPosts] = useState<AdminPost[]>([])
@@ -395,7 +394,7 @@ function AuthModal({
     const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register'
     
     try {
-      const res = await fetch(`http://localhost:8000${endpoint}`, {
+      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mode === 'login' ? { email, password } : { email, password, username })
@@ -534,7 +533,7 @@ function CreatePostModal({
     }
 
     try {
-      await fetch('http://localhost:8000/api/posts', {
+      await fetch(`${API_BASE_URL}/api/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPost)
