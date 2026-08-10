@@ -723,15 +723,34 @@ function CreatePostModal({
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase mb-1">Cover Image URL</label>
-                <input
-                  type="url"
-                  value={image}
-                  onChange={e => setImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full p-2.5 rounded border text-sm"
-                  style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                />
+                <label className="block mb-1 text-xs font-mono uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>
+                  Cover Image (URL or Upload)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full p-2 border rounded text-xs outline-none"
+                    style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        const reader = new FileReader()
+                        reader.onloadend = () => {
+                          setImage(reader.result as string)
+                        }
+                        reader.readAsDataURL(file)
+                      }
+                    }}
+                    className="text-xs self-center"
+                  />
+                </div>
               </div>
             </div>
 
@@ -1160,11 +1179,11 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
 
   const profile: UserProfile = currentUser || {
     email: 'user@example.com',
-    username: 'your username',
+    username: 'LOGIN',
     displayName: 'Add your name',
     locationRole: 'Location / Roles',
-    bio1: 'Add your Bio1',
-    bio2: 'Add your Bio2',
+    bio1: 'Add your Bio 1',
+    bio2: 'Add your Bio 2',
     avatarUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80',
     currently: [
       'Quae sunt istae imposturae et doli quos clam in tenebris paras',
@@ -1181,11 +1200,11 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
     techStack: ['Add your favourites'],
     philosophy: '"Build things you\'d actually use. Write things you\'d actually want to read. Walk somewhere without a destination at least once a week."',
     milestones: [
-    { year: '2024', text: 'Started CS degree at University of Edinburgh', color: '#8B9E7E' },
-    { year: '2024', text: 'Built my first real tool — a bookmark organizer', color: '#8B9E7E' },
-    { year: '2025', text: 'Started keeping a daily journal', color: '#8B9E7E' },
-    { year: '2025', text: 'First proper project: Journal CLI', color: '#8B9E7E' },
-    { year: '2026', text: 'Learning Rust, building in public, writing more', color: '#8B9E7E' }
+    { year: '2024', text: 'Hic mei progressus notantur.', color: '#8B9E7E' },
+    { year: '2024', text: 'Mea gesta hic perscripta sunt', color: '#8B9E7E' },
+    { year: '2025', text: 'Indices meorum successuum hic patent', color: '#8B9E7E' },
+    { year: '2025', text: 'Hic habes metas a me tactas', color: '#8B9E7E' },
+    { year: '2026', text: 'Mei honores hic enumerati sunt', color: '#8B9E7E' }
 ]
   }
 
@@ -1308,10 +1327,33 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
               </div>
 
               <div>
-                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Avatar Image URL</label>
-                <input type="text" value={formData.avatarUrl} onChange={e => setFormData({...formData, avatarUrl: e.target.value})} className="w-full p-2 border rounded outline-none" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
+              <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Avatar Image URL or Upload</label>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={formData.avatarUrl} 
+                  onChange={e => setFormData({...formData, avatarUrl: e.target.value})} 
+                  className="w-full p-2 border rounded outline-none" 
+                  style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} 
+                  placeholder="https://..."
+                />
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      const reader = new FileReader()
+                      reader.onloadend = () => {
+                        setFormData(prev => ({ ...prev, avatarUrl: reader.result as string }))
+                      }
+                      reader.readAsDataURL(file)
+                    }
+                  }} 
+                  className="text-xs self-center" 
+                />
               </div>
-
+            </div>
               <div>
                 <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Bio Paragraph 1</label>
                 <textarea rows={2} value={formData.bio1} onChange={e => setFormData({...formData, bio1: e.target.value})} className="w-full p-2 border rounded outline-none font-sans text-xs" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
