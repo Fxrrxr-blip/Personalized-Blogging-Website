@@ -1198,13 +1198,13 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 font-sans">
+    <div className="max-w-4xl mx-auto px-6 py-10">
       <div className="flex justify-between items-center mb-6">
-        <span className="text-xs font-mono tracking-widest uppercase text-stone-500">A PERSON</span>
+        <span className="category-label">A PERSON</span>
         <button 
           onClick={() => { setFormData(profile); setIsEditing(true); }}
-          className="text-xs font-mono px-3 py-1.5 rounded border border-stone-700 hover:bg-stone-800 transition-colors"
-          style={{ color: 'var(--foreground)' }}
+          className="text-xs font-mono px-3 py-1.5 rounded border transition-colors hover:bg-stone-800"
+          style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
         >
           Edit Profile
         </button>
@@ -1219,26 +1219,27 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
           <img 
             src={profile.avatarUrl} 
             alt={profile.displayName} 
-            className="w-full aspect-square object-cover rounded-xl shadow-sm"
+            className="w-full aspect-square object-cover rounded-xl shadow-sm border"
+            style={{ borderColor: 'var(--border)' }}
           />
         </div>
         <div className="md:col-span-8 space-y-4">
           <div>
-            <h2 className="font-serif text-2xl font-medium" style={{ color: 'var(--foreground)' }}>{profile.displayName}</h2>
-            <p className="text-xs font-mono text-stone-500 mt-1">{profile.locationRole}</p>
+            <h2 className="font-serif text-2xl font-semibold" style={{ color: 'var(--foreground)' }}>{profile.displayName}</h2>
+            <p className="text-xs font-mono mt-1" style={{ color: 'var(--muted-foreground)' }}>{profile.locationRole}</p>
           </div>
-          <p className="text-sm leading-relaxed text-stone-400 font-light">{profile.bio1}</p>
-          <p className="text-sm leading-relaxed text-stone-400 font-light">{profile.bio2}</p>
+          <p className="text-sm leading-relaxed font-light" style={{ color: 'var(--muted-foreground)' }}>{profile.bio1}</p>
+          <p className="text-sm leading-relaxed font-light" style={{ color: 'var(--muted-foreground)' }}>{profile.bio2}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
         <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
-          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">CURRENTLY</h3>
-          <ul className="space-y-2.5 text-xs text-stone-300 font-light">
+          <h3 className="category-label mb-4">CURRENTLY</h3>
+          <ul className="space-y-2.5 text-xs font-light" style={{ color: 'var(--muted-foreground)' }}>
             {profile.currently.map((item, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="text-stone-500">•</span>
+                <span>•</span>
                 <span>{item}</span>
               </li>
             ))}
@@ -1246,11 +1247,11 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
         </div>
 
         <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
-          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">THINGS I'M LEARNING</h3>
-          <ul className="space-y-2.5 text-xs text-stone-300 font-light">
+          <h3 className="category-label mb-4">THINGS I'M LEARNING</h3>
+          <ul className="space-y-2.5 text-xs font-light" style={{ color: 'var(--muted-foreground)' }}>
             {profile.learning.map((item, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="text-stone-500">•</span>
+                <span>•</span>
                 <span>{item}</span>
               </li>
             ))}
@@ -1258,10 +1259,10 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
         </div>
 
         <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
-          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">FAVOURITE TECHNOLOGIES</h3>
+          <h3 className="category-label mb-4">FAVOURITE TECHNOLOGIES</h3>
           <div className="flex flex-wrap gap-2">
             {profile.techStack.map((tech) => (
-              <span key={tech} className="px-2.5 py-1 text-[10px] font-mono rounded border border-stone-800 bg-stone-950/60 text-stone-300 tracking-wider">
+              <span key={tech} className="px-2.5 py-1 text-[10px] font-mono rounded border border-stone-800 bg-stone-950/60 tracking-wider" style={{ color: 'var(--foreground)' }}>
                 {tech}
               </span>
             ))}
@@ -1269,21 +1270,21 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
         </div>
 
         <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40 flex flex-col justify-between">
-          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">PERSONAL PHILOSOPHY</h3>
-          <p className="font-serif italic text-sm text-stone-300 leading-relaxed">
+          <h3 className="category-label mb-4">PERSONAL PHILOSOPHY</h3>
+          <p className="font-serif italic text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>
             {profile.philosophy}
           </p>
         </div>
       </div>
 
       <div className="mt-12">
-        <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-6">MILESTONES</h3>
+        <h3 className="category-label mb-6">MILESTONES</h3>
         <div className="space-y-4">
           {profile.milestones.map((ms, i) => (
             <div key={i} className="flex items-center gap-6 text-xs">
-              <span className="font-mono text-stone-500 w-10 text-right">{ms.year}</span>
+              <span className="font-mono w-10 text-right" style={{ color: 'var(--muted-foreground)' }}>{ms.year}</span>
               <span className="w-2 h-2 rounded-full bg-emerald-700/60 flex-shrink-0" />
-              <span className="text-stone-300 font-light">{ms.text}</span>
+              <span className="font-light" style={{ color: 'var(--foreground)' }}>{ms.text}</span>
             </div>
           ))}
         </div>
@@ -1292,7 +1293,7 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
       {isEditing && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h2 className="text-xl font-serif font-bold text-stone-100 mb-6">Edit Profile Page</h2>
+            <h2 className="text-xl font-serif font-semibold text-stone-100 mb-6">Edit Profile Page</h2>
             <form onSubmit={handleSave} className="space-y-4 text-xs font-mono">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -1453,7 +1454,7 @@ export default function App() {
         philosophy: '"Build things you\'d actually use."',
         milestones: [{ year: '2026', text: 'Joined the platform' }]
       })
-    }}
+  }}
       />
     </div>
   )
