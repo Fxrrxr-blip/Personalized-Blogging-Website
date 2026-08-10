@@ -1560,13 +1560,26 @@ const storageKey = currentUser ? `blog_deleted_ids_${currentUser.email}` : null;
     setPosts((prevPosts: any[]) => prevPosts.filter((p: any) => p.id !== id));
   };
 
-  const handleSavePost = (newPost: any) => {
-    setPosts([newPost, ...posts])
+useEffect(() => {
+  if (currentUser) {
     try {
-      const existing = JSON.parse(localStorage.getItem('blog_admin_posts') || '[]')
-      localStorage.setItem('blog_admin_posts', JSON.stringify([newPost, ...existing]))
+      const userKey = `blog_admin_posts_${currentUser.email}`;
+      const saved = JSON.parse(localStorage.getItem(userKey) || '[]');
+      if (saved.length > 0) {
+        setPosts((prev) => [...saved, ...prev]);
+      }
     } catch { /* ignore */ }
   }
+}, [currentUser]);
+
+  const handleSavePost = (newPost: any) => {
+    setPosts((prev) => [newPost, ...prev]);
+    try {
+      const userKey = currentUser ? `blog_admin_posts_${currentUser.email}` : 'blog_admin_posts';
+      const existing = JSON.parse(localStorage.getItem(userKey) || '[]');
+      localStorage.setItem(userKey, JSON.stringify([newPost, ...existing]));
+    } catch { /* ignore */ }
+  };
 
   return (
     <div className={`min-h-screen ${dark ? 'dark' : ''}`} style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
@@ -1586,7 +1599,7 @@ const storageKey = currentUser ? `blog_deleted_ids_${currentUser.email}` : null;
   <div className="max-w-6xl mx-auto px-6 py-14">
     <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Projects</h1>
     <div className="grid gap-6 md:grid-cols-2">
-      {PROJECTS.filter((item: any) => !deletedIds.includes(item.id)).map((item: any) => (
+      {[...posts.filter((p: any) => p.category === 'Projects'), ...PROJECTS].filter((item: any) => !deletedIds.includes(item.id)).map((item: any) => (
         <div key={item.id} className="p-6 rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
           <h2 className="font-semibold text-lg mb-2">{item.name}</h2>
           <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>{item.description}</p>
@@ -1628,7 +1641,7 @@ const storageKey = currentUser ? `blog_deleted_ids_${currentUser.email}` : null;
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {THOUGHTS.filter((t: any) => !deletedIds.includes(t.id)).map((t: any) => (
+            {[...posts.filter((p: any) => p.category === 'Thoughts').map((p: any) => ({ id: p.id, text: p.content || p.excerpt || p.title, date: p.date, tags: p.tags || [] })), ...THOUGHTS].filter((t: any) => !deletedIds.includes(t.id)).map((t: any) => (
               <div
                 key={t.id}
                 className="p-6 rounded-[6px] flex flex-col justify-between card-hover"
