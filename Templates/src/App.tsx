@@ -360,6 +360,86 @@ const PROJECTS = [
 
 const CATEGORIES = ['All', 'Personal', 'Technology', 'Programming', 'Projects', 'College', 'Ideas', 'Lessons', 'Random']
 
+// ─── Journal Page ────────────────────────────────────────────────────────────
+
+function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS }: {setPage: (p: string) => void; setPost: (p: any) => void; extraPosts?: any[] }) {  const [query, setQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState('All')
+  const filtered = (extraPosts || []).filter((p: any) => {
+    if (!p) return false
+    const matchesCategory = activeCategory === 'All' || p.category === activeCategory
+    const q = query.toLowerCase()
+    
+    const matchesTitle = p.title?.toLowerCase().includes(q)
+    const matchesExcerpt = p.excerpt?.toLowerCase().includes(q)
+    const matchesTags = Array.isArray(p.tags) && p.tags.some((t: string) => t.toLowerCase().includes(q))
+    
+    const matchesQuery = !q || matchesTitle || matchesExcerpt || matchesTags
+    return matchesCategory && matchesQuery
+  })
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-14">
+      <div className="fade-in mb-10">
+        <span className="category-label">Archive</span>
+        <h1 className="font-serif text-4xl md:text-5xl font-semibold mt-2 mb-3" style={{ color: 'var(--foreground)' }}>Journal</h1>
+        <p className="text-base font-light" style={{ color: 'var(--muted-foreground)' }}>
+          Things I've written down so I don't forget them.
+        </p>
+      </div>
+
+      {/* Search + filter */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="relative flex-1 max-w-sm">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" style={{ color: 'var(--muted-foreground)' }}>
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search posts…"
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-[6px] outline-none focus:ring-1"
+            style={{
+              background: 'var(--muted)',
+              border: '1px solid var(--border)',
+              color: 'var(--foreground)',
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Categories */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className="px-3 py-1.5 text-xs font-mono rounded-[4px] border transition-all"
+            style={{
+              borderColor: activeCategory === cat ? 'var(--accent)' : 'var(--border)',
+              backgroundColor: activeCategory === cat ? 'var(--accent)' : 'transparent',
+              color: activeCategory === cat ? 'var(--accent-foreground)' : 'var(--muted-foreground)',
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      <p className="text-xs font-mono mb-6" style={{ color: 'var(--muted-foreground)' }}>
+        {filtered.length} {filtered.length === 1 ? 'post' : 'posts'}
+      </p>
+
+      <div className="masonry-grid stagger">
+        {filtered.map(p => (
+          <PostCard key={p.id} post={p} onClick={() => { setPost(p); setPage('Post') }} />
+        ))}
+        {filtered.length === 0 && (
+          <p className="font-serif italic text-lg" style={{ color: 'var(--muted-foreground)' }}>Nothing matches that search.</p>
+        )}
+      </div>
+    </div>
+  )
+}
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
@@ -1058,7 +1138,7 @@ export default function App() {
   const [page, setPage] = useState('Home')
   const [dark, setDark] = useState(false)
   const [selectedPost, setSelectedPost] = useState<typeof INITIAL_POSTS[0] | null>(null)
-  
+
   // Dynamic posts state and modal visibility
   const [posts, setPosts] = useState(INITIAL_POSTS)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -1084,7 +1164,43 @@ export default function App() {
         onOpenAuth={() => setIsAuthOpen(true)}
       />
 
-      {page === 'Home' && <HomePage setPage={setPage} setPost={setSelectedPost} extraPosts={posts} />}
+      <main className="container mx-auto px-4 py-8">
+        {page === 'Home' && <HomePage setPage={setPage} setPost={setSelectedPost} extraPosts={posts} />}
+        {page === 'Journal' && <JournalPage setPage={setPage} setPost={setSelectedPost} extraPosts={posts} />}
+        {page === 'Projects' && (
+  <div className="max-w-6xl mx-auto px-6 py-14">
+    <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Projects</h1>
+    <div className="grid gap-6 md:grid-cols-2">
+      {PROJECTS.map((item: any) => (
+        <div key={item.id} className="p-6 rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+          <h2 className="font-semibold text-lg mb-2">{item.name}</h2>
+          <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>{item.description}</p>
+          <div className="flex flex-wrap gap-2">
+            {item.tech?.map((t: string) => (
+              <span key={t} className="px-2 py-0.5 text-xs font-mono rounded" style={{ border: '1px solid var(--border)' }}>{t}</span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+        {page === 'Thoughts' && (
+  <div className="max-w-4xl mx-auto px-6 py-14">
+    <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Thoughts</h1>
+    <p style={{ color: 'var(--muted-foreground)' }}>Short notes, ideas, and observations.</p>
+  </div>
+)}
+
+{page === 'About' && (
+  <div className="max-w-4xl mx-auto px-6 py-14">
+    <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>About</h1>
+    <p style={{ color: 'var(--muted-foreground)' }}>Personal blog and digital space.</p>
+  </div>
+)}
+        {page === 'Post' && selectedPost && <PostPage post={selectedPost} setPage={setPage} />}
+      </main>
 
       {/* Floating Action Button */}
       <button
