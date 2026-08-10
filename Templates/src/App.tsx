@@ -1203,7 +1203,7 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
         <span className="category-label">A PERSON</span>
         <button 
           onClick={() => { setFormData(profile); setIsEditing(true); }}
-          className="text-xs font-mono px-3 py-1.5 rounded border transition-colors hover:bg-stone-800"
+          className="text-xs font-mono px-3 py-1.5 rounded border transition-colors hover:bg-stone-200 dark:hover:bg-stone-800"
           style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
         >
           Edit Profile
@@ -1234,7 +1234,7 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
-        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
+        <div className="p-6 rounded-xl" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
           <h3 className="category-label mb-4">CURRENTLY</h3>
           <ul className="space-y-2.5 text-xs font-light" style={{ color: 'var(--muted-foreground)' }}>
             {profile.currently.map((item, i) => (
@@ -1246,7 +1246,7 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
           </ul>
         </div>
 
-        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
+        <div className="p-6 rounded-xl" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
           <h3 className="category-label mb-4">THINGS I'M LEARNING</h3>
           <ul className="space-y-2.5 text-xs font-light" style={{ color: 'var(--muted-foreground)' }}>
             {profile.learning.map((item, i) => (
@@ -1258,18 +1258,18 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
           </ul>
         </div>
 
-        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
+        <div className="p-6 rounded-xl" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
           <h3 className="category-label mb-4">FAVOURITE TECHNOLOGIES</h3>
           <div className="flex flex-wrap gap-2">
             {profile.techStack.map((tech) => (
-              <span key={tech} className="px-2.5 py-1 text-[10px] font-mono rounded border border-stone-800 bg-stone-950/60 tracking-wider" style={{ color: 'var(--foreground)' }}>
+              <span key={tech} className="tag-chip" style={{ fontSize: '0.7rem' }}>
                 {tech}
               </span>
             ))}
           </div>
         </div>
 
-        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40 flex flex-col justify-between">
+        <div className="p-6 rounded-xl flex flex-col justify-between" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
           <h3 className="category-label mb-4">PERSONAL PHILOSOPHY</h3>
           <p className="font-serif italic text-sm leading-relaxed" style={{ color: 'var(--foreground)' }}>
             {profile.philosophy}
@@ -1283,7 +1283,7 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
           {profile.milestones.map((ms, i) => (
             <div key={i} className="flex items-center gap-6 text-xs">
               <span className="font-mono w-10 text-right" style={{ color: 'var(--muted-foreground)' }}>{ms.year}</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-700/60 flex-shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-[#8B9E7E] flex-shrink-0" />
               <span className="font-light" style={{ color: 'var(--foreground)' }}>{ms.text}</span>
             </div>
           ))}
@@ -1291,59 +1291,59 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
       </div>
 
       {isEditing && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h2 className="text-xl font-serif font-semibold text-stone-100 mb-6">Edit Profile Page</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="border rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
+            <h2 className="text-xl font-serif font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Edit Profile Page</h2>
             <form onSubmit={handleSave} className="space-y-4 text-xs font-mono">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-stone-400 mb-1">Display Name</label>
-                  <input type="text" value={formData.displayName} onChange={e => setFormData({...formData, displayName: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                  <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Display Name</label>
+                  <input type="text" value={formData.displayName} onChange={e => setFormData({...formData, displayName: e.target.value})} className="w-full p-2 border rounded outline-none" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                 </div>
                 <div>
-                  <label className="block text-stone-400 mb-1">Location & Role</label>
-                  <input type="text" value={formData.locationRole} onChange={e => setFormData({...formData, locationRole: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                  <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Location & Role</label>
+                  <input type="text" value={formData.locationRole} onChange={e => setFormData({...formData, locationRole: e.target.value})} className="w-full p-2 border rounded outline-none" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
                 </div>
               </div>
 
               <div>
-                <label className="block text-stone-400 mb-1">Avatar Image URL</label>
-                <input type="text" value={formData.avatarUrl} onChange={e => setFormData({...formData, avatarUrl: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Avatar Image URL</label>
+                <input type="text" value={formData.avatarUrl} onChange={e => setFormData({...formData, avatarUrl: e.target.value})} className="w-full p-2 border rounded outline-none" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
 
               <div>
-                <label className="block text-stone-400 mb-1">Bio Paragraph 1</label>
-                <textarea rows={2} value={formData.bio1} onChange={e => setFormData({...formData, bio1: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100 font-sans text-xs" />
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Bio Paragraph 1</label>
+                <textarea rows={2} value={formData.bio1} onChange={e => setFormData({...formData, bio1: e.target.value})} className="w-full p-2 border rounded outline-none font-sans text-xs" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
 
               <div>
-                <label className="block text-stone-400 mb-1">Bio Paragraph 2</label>
-                <textarea rows={2} value={formData.bio2} onChange={e => setFormData({...formData, bio2: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100 font-sans text-xs" />
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Bio Paragraph 2</label>
+                <textarea rows={2} value={formData.bio2} onChange={e => setFormData({...formData, bio2: e.target.value})} className="w-full p-2 border rounded outline-none font-sans text-xs" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
 
               <div>
-                <label className="block text-stone-400 mb-1">Currently List (comma-separated)</label>
-                <input type="text" value={formData.currently.join(', ')} onChange={e => setFormData({...formData, currently: e.target.value.split(',').map(s => s.trim())})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Currently List (comma-separated)</label>
+                <input type="text" value={formData.currently.join(', ')} onChange={e => setFormData({...formData, currently: e.target.value.split(',').map(s => s.trim())})} className="w-full p-2 border rounded outline-none" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
 
               <div>
-                <label className="block text-stone-400 mb-1">Learning List (comma-separated)</label>
-                <input type="text" value={formData.learning.join(', ')} onChange={e => setFormData({...formData, learning: e.target.value.split(',').map(s => s.trim())})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Learning List (comma-separated)</label>
+                <input type="text" value={formData.learning.join(', ')} onChange={e => setFormData({...formData, learning: e.target.value.split(',').map(s => s.trim())})} className="w-full p-2 border rounded outline-none" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
 
               <div>
-                <label className="block text-stone-400 mb-1">Technologies (comma-separated)</label>
-                <input type="text" value={formData.techStack.join(', ')} onChange={e => setFormData({...formData, techStack: e.target.value.split(',').map(s => s.trim().toUpperCase())})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Technologies (comma-separated)</label>
+                <input type="text" value={formData.techStack.join(', ')} onChange={e => setFormData({...formData, techStack: e.target.value.split(',').map(s => s.trim().toUpperCase())})} className="w-full p-2 border rounded outline-none" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
 
               <div>
-                <label className="block text-stone-400 mb-1">Personal Philosophy</label>
-                <textarea rows={2} value={formData.philosophy} onChange={e => setFormData({...formData, philosophy: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100 font-serif italic text-xs" />
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Personal Philosophy</label>
+                <textarea rows={2} value={formData.philosophy} onChange={e => setFormData({...formData, philosophy: e.target.value})} className="w-full p-2 border rounded outline-none font-serif italic text-xs" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-stone-800">
-                <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 text-stone-400 hover:text-stone-200">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-stone-100 text-stone-900 font-bold rounded hover:bg-stone-200">Save Changes</button>
+              <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+                <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2" style={{ color: 'var(--muted-foreground)' }}>Cancel</button>
+                <button type="submit" className="px-4 py-2 border rounded font-bold" style={{ backgroundColor: 'var(--foreground)', color: 'var(--background)' }}>Save Changes</button>
               </div>
             </form>
           </div>
