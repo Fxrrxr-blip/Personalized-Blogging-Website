@@ -382,9 +382,8 @@ const PROJECTS = [
 const CATEGORIES = ['All', 'Personal', 'Technology', 'Programming', 'Projects', 'College', 'Ideas', 'Lessons', 'Random']
 
 // ─── Journal Page ────────────────────────────────────────────────────────────
-
-function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (p: string) => void; setPost: (p: any) => void; extraPosts?: any[] }) {
-  const onDelete = (arguments[0] as any)?.onDelete;  const [activeCategory, setActiveCategory] = useState('All') 
+function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS, onDelete }: { setPage: (p: string) => void; setPost: (p: any) => void; extraPosts?: any[]; onDelete?: (id: string | number) => void; }) {
+  const [activeCategory, setActiveCategory] = useState('All');
   const [query, setQuery] = useState('');
   const filtered = (extraPosts || []).filter((p: any) => {
     if (!p) return false
@@ -1524,8 +1523,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null)
 
 // User-scoped key: null when logged out, unique key when logged in
-  const storageKey = currentUser ? `blog_deleted_ids_${currentUser.email || currentUser.id}` : null;
-
+const storageKey = currentUser ? `blog_deleted_ids_${currentUser.email}` : null;
   const [deletedIds, setDeletedIds] = useState<Array<string | number>>(() => {
     if (currentUser && storageKey) {
       try {
@@ -1583,7 +1581,7 @@ export default function App() {
 
       <main className="container mx-auto px-4 py-8">
         {page === 'Home' && <HomePage setPage={setPage} setPost={setSelectedPost} extraPosts={posts} />}
-        {page === 'Journal' && <JournalPage setPage={setPage} setPost={setSelectedPost} extraPosts={posts} />}
+        {page === 'Journal' && <JournalPage setPage={setPage} setPost={setSelectedPost} extraPosts={posts.filter((p: any) => !deletedIds.includes(p.id))} onDelete={handleDeletePost} />}
         {page === 'Projects' && (
   <div className="max-w-6xl mx-auto px-6 py-14">
     <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Projects</h1>
