@@ -1523,22 +1523,44 @@ export default function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null)
 
-  // Example: Filter out deleted IDs from static lists in state initialization
-const [deletedIds, setDeletedIds] = useState<Array<string | number>>(() => {
-  try {
-    return JSON.parse(localStorage.getItem('blog_deleted_ids') || '[]');
-  } catch {
-    return [];
-  }
-});
+// User-scoped key: null when logged out, unique key when logged in
+  const storageKey = currentUser ? `blog_deleted_ids_${currentUser.email || currentUser.id}` : null;
 
-const handleDeletePost = (id: string | number) => {
-  setDeletedIds((prev) => {
-    const updated = [...prev, id];
-    localStorage.setItem('blog_deleted_ids', JSON.stringify(updated));
-    return updated;
+  const [deletedIds, setDeletedIds] = useState<Array<string | number>>(() => {
+    if (currentUser && storageKey) {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || '[]');
+      } catch {
+        return [];
+      }
+    }
+    return [];
   });
-};
+
+  // Re-sync deleted IDs whenever auth state changes
+  useEffect(() => {
+    if (currentUser && storageKey) {
+      try {
+        setDeletedIds(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+      } catch {
+        setDeletedIds([]);
+      }
+    } else {
+      setDeletedIds([]);
+    }
+  }, [currentUser, storageKey]);
+
+  const handleDeletePost = (id: string | number) => {
+    setDeletedIds((prev) => {
+      const updated = [...prev, id];
+      // Only persist to localStorage if an account is logged in
+      if (currentUser && storageKey) {
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+      }
+      return updated;
+    });
+    setPosts((prevPosts: any[]) => prevPosts.filter((p: any) => p.id !== id));
+  };
 
   const handleSavePost = (newPost: any) => {
     setPosts([newPost, ...posts])
