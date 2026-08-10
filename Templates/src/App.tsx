@@ -1161,7 +1161,7 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
   const profile: UserProfile = currentUser || {
     email: 'user@example.com',
     username: 'your username',
-    displayName: 'your name',
+    displayName: 'Add your name',
     locationRole: 'Location / Roles',
     bio1: 'Add your Bio1',
     bio2: 'Add your Bio2',
@@ -1284,7 +1284,7 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
           {profile.milestones.map((ms, i) => (
             <div key={i} className="flex items-center gap-6 text-xs">
               <span className="font-mono w-10 text-right" style={{ color: 'var(--muted-foreground)' }}>{ms.year}</span>
-              <span className="w-2 h-2 rounded-full bg-[#8B9E7E] flex-shrink-0" />
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: ms.color || '#8B9E7E' }} />
               <span className="font-light" style={{ color: 'var(--foreground)' }}>{ms.text}</span>
             </div>
           ))}
@@ -1341,6 +1341,75 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
                 <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Personal Philosophy</label>
                 <textarea rows={2} value={formData.philosophy} onChange={e => setFormData({...formData, philosophy: e.target.value})} className="w-full p-2 border rounded outline-none font-serif italic text-xs" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
               </div>
+
+              <div className="space-y-3 mt-4">
+
+              <label className="block text-xs font-mono uppercase tracking-widest" style={{ color: 'var(--accent)' }}>
+                Milestones
+              </label>
+              {formData.milestones.map((ms, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={ms.year}
+                    onChange={(e) => {
+                      const updated = [...formData.milestones]
+                      updated[index].year = e.target.value
+                      setFormData({ ...formData, milestones: updated })
+                    }}
+                    placeholder="Year"
+                    className="w-16 px-2 py-1 text-xs rounded border outline-none"
+                    style={{ background: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                  <input
+                    type="text"
+                    value={ms.text}
+                    onChange={(e) => {
+                      const updated = [...formData.milestones]
+                      updated[index].text = e.target.value
+                      setFormData({ ...formData, milestones: updated })
+                    }}
+                    placeholder="Event description"
+                    className="flex-1 px-2 py-1 text-xs rounded border outline-none"
+                    style={{ background: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  />
+                  <input
+                    type="color"
+                    value={ms.color || '#8B9E7E'}
+                    onChange={(e) => {
+                      const updated = [...formData.milestones]
+                      updated[index].color = e.target.value
+                      setFormData({ ...formData, milestones: updated })
+                    }}
+                    className="w-7 h-7 p-0 border-0 rounded cursor-pointer bg-transparent shrink-0"
+                    title="Choose dot color"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = formData.milestones.filter((_, i) => i !== index)
+                      setFormData({ ...formData, milestones: updated })
+                    }}
+                    className="text-xs text-red-500 hover:opacity-70 px-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    milestones: [...formData.milestones, { year: '2026', text: 'New milestone', color: '#8B9E7E' }]
+                  })
+                }}
+                className="text-xs font-mono hover:opacity-70 mt-1 block"
+                style={{ color: 'var(--accent)' }}
+              >
+                + Add Milestone
+              </button>
+            </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
                 <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2" style={{ color: 'var(--muted-foreground)' }}>Cancel</button>
@@ -1505,7 +1574,7 @@ function Footer({ setPage }: { setPage: (p: string) => void }) {
         {/* Brand & Credentials */}
         <div>
           <p className="font-serif font-semibold text-base mb-0.5" style={{ color: 'var(--foreground)' }}>
-            B. ferrer
+            B.T. Ferrer
           </p>
           <p className="text-xs font-light" style={{ color: 'var(--muted-foreground)' }}>
             Built and written by Bennett Christoff T. Ferrer
