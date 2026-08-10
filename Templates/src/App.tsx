@@ -1404,12 +1404,47 @@ export default function App() {
   </div>
 )}
 
-        {page === 'Thoughts' && (
-  <div className="max-w-4xl mx-auto px-6 py-14">
-    <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Thoughts</h1>
-    <p style={{ color: 'var(--muted-foreground)' }}>Short notes, ideas, and observations.</p>
-  </div>
-)}
+{page === 'Thoughts' && (
+        <div className="max-w-6xl mx-auto px-6 py-14">
+          <div className="fade-in mb-10">
+            <p className="font-mono text-xs tracking-widest uppercase mb-2" style={{ color: 'var(--accent)' }}>
+              SHORT NOTES
+            </p>
+            <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-3" style={{ color: 'var(--foreground)' }}>
+              Thoughts
+            </h1>
+            <p className="text-base font-light" style={{ color: 'var(--muted-foreground)' }}>
+              Things I was thinking about at 2am.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {THOUGHTS.map(t => (
+              <div
+                key={t.id}
+                className="p-6 rounded-[6px] flex flex-col justify-between card-hover"
+                style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}
+              >
+                <p className="font-serif italic text-base leading-relaxed mb-6" style={{ color: 'var(--foreground)' }}>
+                  "{t.text}"
+                </p>
+                <div className="flex items-center justify-between gap-2 mt-auto">
+                  <span className="text-xs font-mono" style={{ color: 'var(--muted-foreground)' }}>
+                    {t.date}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {t.tags.map(tag => (
+                      <span key={tag} className="tag-chip uppercase">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
 {page === 'About' && (
   <AboutPage 
@@ -1469,7 +1504,7 @@ function Footer({ setPage }: { setPage: (p: string) => void }) {
         {/* Brand & Credentials */}
         <div>
           <p className="font-serif font-semibold text-base mb-0.5" style={{ color: 'var(--foreground)' }}>
-            b. ferrer
+            B. ferrer
           </p>
           <p className="text-xs font-light" style={{ color: 'var(--muted-foreground)' }}>
             Built and written by Bennett Christoff T. Ferrer
