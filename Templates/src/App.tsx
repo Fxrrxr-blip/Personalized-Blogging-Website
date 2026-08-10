@@ -1214,6 +1214,19 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
 function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile | null; setCurrentUser: (user: UserProfile) => void }) {
   const [isEditing, setIsEditing] = useState(false)
 
+  const userProfileKey = currentUser ? `blog_user_profile_${currentUser.email}` : 'blog_user_profile';
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(userProfileKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setCurrentUser(parsed);
+        setFormData(parsed);
+      }
+    } catch { /* ignore */ }
+  }, [currentUser?.email]);
+
   const profile: UserProfile = currentUser || {
     email: 'user@example.com',
     username: 'LOGIN',
@@ -1248,11 +1261,11 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
   const [formData, setFormData] = useState<UserProfile>(profile)
 
   const handleSave = (e: React.FormEvent) => {
-    e.preventDefault()
-    setCurrentUser(formData)
-    localStorage.setItem('blog_user_profile', JSON.stringify(formData))
-    setIsEditing(false)
-  }
+    e.preventDefault();
+    setCurrentUser(formData);
+    localStorage.setItem(userProfileKey, JSON.stringify(formData));
+    setIsEditing(false);
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
@@ -1714,20 +1727,31 @@ useEffect(() => {
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         onLoginSuccess={(user) => {
-        setCurrentUser({
-        email: user.email,
-        username: user.username,
-        displayName: user.username,
-        locationRole: 'Edinburgh, Scotland · CS Student',
-        bio1: 'I study computer science by day and build small personal tools by night.',
-        bio2: 'This website is my corner of the internet.',
-        avatarUrl: '',
-        currently: ['Building projects'],
-        learning: ['TypeScript', 'React'],
-        techStack: ['TYPESCRIPT', 'REACT'],
-        philosophy: '"Build things you\'d actually use."',
-        milestones: [{ year: '2026', text: 'Joined the platform' }]
-      })}}
+          const userProfileKey = `blog_user_profile_${user.email}`;
+          const savedProfile = localStorage.getItem(userProfileKey);
+          
+          if (savedProfile) {
+            try {
+              setCurrentUser(JSON.parse(savedProfile));
+              return;
+            } catch { /* ignore */ }
+          }
+
+          setCurrentUser({
+            email: user.email,
+            username: user.username,
+            displayName: user.username,
+            locationRole: 'Edinburgh, Scotland · CS Student',
+            bio1: 'I study computer science by day and build small personal tools by night.',
+            bio2: 'This website is my corner of the internet.',
+            avatarUrl: '',
+            currently: ['Building projects'],
+            learning: ['TypeScript', 'React'],
+            techStack: ['TYPESCRIPT', 'REACT'],
+            philosophy: '"Build things you\'d actually use."',
+            milestones: [{ year: '2026', text: 'Joined the platform' }]
+          });
+        }}
       />
       <Footer setPage={setPage} />
     </div>
