@@ -383,8 +383,20 @@ const CATEGORIES = ['All', 'Personal', 'Technology', 'Programming', 'Projects', 
 
 // ─── Journal Page ────────────────────────────────────────────────────────────
 
-function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS }: {setPage: (p: string) => void; setPost: (p: any) => void; extraPosts?: any[] }) {  const [query, setQuery] = useState('')
+function JournalPage({ 
+  setPage, 
+  setPost, 
+  extraPosts = INITIAL_POSTS, 
+  onDelete 
+}: { 
+  setPage: (p: string) => void; 
+  setPost: (p: any) => void; 
+  extraPosts?: any[]; 
+  onDelete?: (id: string | number, e: React.MouseEvent) => void; 
+}) {
+  const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
+
   const filtered = (extraPosts || []).filter((p: any) => {
     if (!p) return false
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory
@@ -452,7 +464,7 @@ function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS }: {setPage:
 
       <div className="masonry-grid stagger">
         {filtered.map(p => (
-          <PostCard key={p.id} post={p} onClick={() => { setPost(p); setPage('Post') }} />
+        <PostCard key={p.id} post={p} onClick={() => { setPost(p); setPage('Post') }} onDelete={onDelete} />
         ))}
         {filtered.length === 0 && (
           <p className="font-serif italic text-lg" style={{ color: 'var(--muted-foreground)' }}>Nothing matches that search.</p>
@@ -723,18 +735,23 @@ function CreatePostModal({
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-mono uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>
-                  Cover Image (URL or Upload)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full p-2 border rounded text-xs outline-none"
-                    style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                  />
+              <label className="block mb-1 text-xs font-mono uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>
+                Cover Image (URL or Upload)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={image}
+                  onChange={(e) => setImage(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="flex-1 p-2.5 border rounded text-sm outline-none"
+                  style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                />
+                <label 
+                  className="cursor-pointer px-3 py-2.5 text-xs font-mono rounded border shrink-0 transition-opacity hover:opacity-80 flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                >
+                  Upload
                   <input
                     type="file"
                     accept="image/*"
@@ -748,11 +765,12 @@ function CreatePostModal({
                         reader.readAsDataURL(file)
                       }
                     }}
-                    className="text-xs self-center"
+                    className="hidden"
                   />
-                </div>
+                </label>
               </div>
             </div>
+          </div>
 
             <div>
               <label className="block text-xs font-mono uppercase mb-1">Excerpt</label>
@@ -925,9 +943,10 @@ function Nav({ page, setPage, dark, setDark, currentUser, onOpenAuth }: {
 
 // ─── Post Card ───────────────────────────────────────────────────────────────
 
-function PostCard({ post, onClick, variant = 'default' }: {
+function PostCard({ post, onClick, onDelete, variant = 'default' }: {
   post: typeof INITIAL_POSTS[0]
   onClick: () => void
+  onDelete?: (id: string | number, e: React.MouseEvent) => void
   variant?: 'default' | 'featured' | 'small'
 }) {
   if (variant === 'featured') {
@@ -951,6 +970,20 @@ function PostCard({ post, onClick, variant = 'default' }: {
             <span style={{ color: 'var(--border)' }}>·</span>
             <span>{post.readTime} read</span>
           </div>
+
+          {onDelete && (
+            <div className="flex justify-end mt-3 border-t pt-2" style={{ borderColor: 'var(--border)' }}>
+              <span
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete(post.id, e)
+                }}
+                className="text-xs font-mono text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded border border-red-200 dark:border-red-900/50 cursor-pointer"
+              >
+                🗑 Delete
+              </span>
+            </div>
+          )}
         </div>
       </button>
     )
@@ -963,17 +996,30 @@ function PostCard({ post, onClick, variant = 'default' }: {
         <h3 className="font-serif font-medium mt-1 mb-1.5 leading-snug text-base" style={{ color: 'var(--foreground)' }}>
           {post.title}
         </h3>
-        <div className="flex items-center gap-2 text-xs font-mono" style={{ color: 'var(--muted-foreground)' }}>
-          <span>{post.date}</span><span>·</span><span>{post.readTime}</span>
+        <div className="flex items-center justify-between text-xs font-mono" style={{ color: 'var(--muted-foreground)' }}>
+          <div>
+            <span>{post.date}</span><span>·</span><span>{post.readTime}</span>
+          </div>
+          {onDelete && (
+            <span
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(post.id, e)
+              }}
+              className="text-xs font-mono text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded border border-red-200 dark:border-red-900/50 cursor-pointer"
+            >
+              🗑 Delete
+            </span>
+          )}
         </div>
       </button>
     )
   }
 
   return (
-    <button
+    <div
       onClick={onClick}
-      className="block w-full text-left masonry-item card-hover rounded-[6px] overflow-hidden"
+      className="block w-full text-left masonry-item card-hover rounded-[6px] overflow-hidden cursor-pointer"
       style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}
     >
       {post.image && (
@@ -1010,8 +1056,23 @@ function PostCard({ post, onClick, variant = 'default' }: {
             ))}
           </div>
         )}
+
+        {onDelete && (
+          <div className="flex justify-end mt-3 border-t pt-2" style={{ borderColor: 'var(--border)' }}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(post.id, e)
+              }}
+              className="text-xs font-mono text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded border border-red-200 dark:border-red-900/50"
+            >
+              🗑 Delete
+            </button>
+          </div>
+        )}
       </div>
-    </button>
+    </div>
   )
 }
 
@@ -1046,8 +1107,7 @@ function PostPage({ post, setPage }: { post: typeof INITIAL_POSTS[0]; setPage: (
   )
 }
 
-function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (p: string) => void; setPost: (p: typeof INITIAL_POSTS[0]) => void; extraPosts?: typeof INITIAL_POSTS }) {
-  const allPosts = extraPosts
+function HomePage({setPage, setPost, extraPosts = INITIAL_POSTS, onDelete}: {setPage: (p: string) => void; setPost: (p: typeof INITIAL_POSTS[0]) => void; extraPosts?: typeof INITIAL_POSTS; onDelete?: (id: string | number, e: React.MouseEvent) => void; }) {  const allPosts = extraPosts
   return (
     <div className="max-w-6xl mx-auto px-6 py-14">
       {/* Hero */}
@@ -1082,12 +1142,19 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
             <PostCard
               post={allPosts[0]}
               onClick={() => { setPost(allPosts[0]); setPage('Post') }}
+              onDelete={onDelete}
               variant="featured"
             />
           )}
           <div className="flex flex-col gap-0">
             {allPosts.slice(1, 5).map(p => (
-              <PostCard key={p.id} post={p} onClick={() => { setPost(p); setPage('Post') }} variant="small" />
+              <PostCard 
+                key={p.id} 
+                post={p} 
+                onClick={() => { setPost(p); setPage('Post') }} 
+                onDelete={onDelete} 
+                variant="small" 
+              />
             ))}
           </div>
         </div>
@@ -1104,7 +1171,7 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
         </div>
         <div className="masonry-grid stagger">
           {allPosts.map(p => (
-            <PostCard key={p.id} post={p} onClick={() => { setPost(p); setPage('Post') }} />
+          <PostCard key={p.id} post={p} onClick={() => { setPost(p); setPage('Post') }} onDelete={onDelete} />
           ))}
         </div>
       </div>
@@ -1326,34 +1393,43 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
                 </div>
               </div>
 
-              <div>
-              <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Avatar Image URL or Upload</label>
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  value={formData.avatarUrl} 
-                  onChange={e => setFormData({...formData, avatarUrl: e.target.value})} 
-                  className="w-full p-2 border rounded outline-none" 
-                  style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} 
-                  placeholder="https://..."
-                />
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) {
-                      const reader = new FileReader()
-                      reader.onloadend = () => {
-                        setFormData(prev => ({ ...prev, avatarUrl: reader.result as string }))
-                      }
-                      reader.readAsDataURL(file)
-                    }
-                  }} 
-                  className="text-xs self-center" 
-                />
+                <div>
+                <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>
+                Avatar Image URL or Upload
+                </label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    value={formData.avatarUrl} 
+                    onChange={e => setFormData({...formData, avatarUrl: e.target.value})} 
+                    className="flex-1 p-2 border rounded outline-none text-xs" 
+                    style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} 
+                    placeholder="https://..."
+                  />
+                  <label 
+                    className="cursor-pointer px-3 py-2 text-xs font-mono rounded border shrink-0 transition-opacity hover:opacity-80 flex items-center justify-center"
+                    style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  >
+                    Upload
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onloadend = () => {
+                            setFormData(prev => ({ ...prev, avatarUrl: reader.result as string }))
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }} 
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
               </div>
-            </div>
+
               <div>
                 <label className="block mb-1" style={{ color: 'var(--muted-foreground)' }}>Bio Paragraph 1</label>
                 <textarea rows={2} value={formData.bio1} onChange={e => setFormData({...formData, bio1: e.target.value})} className="w-full p-2 border rounded outline-none font-sans text-xs" style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--foreground)' }} />
@@ -1471,16 +1547,36 @@ export default function App() {
   const [selectedPost, setSelectedPost] = useState<typeof INITIAL_POSTS[0] | null>(null)
 
   // Dynamic posts state and modal visibility
-  const [posts, setPosts] = useState(INITIAL_POSTS)
+  const [posts, setPosts] = useState(() => {
+  try {
+    const saved = localStorage.getItem('blog_admin_posts')
+    return saved ? JSON.parse(saved) : INITIAL_POSTS
+  } catch {
+    return INITIAL_POSTS
+  }
+})
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null)
   const handleSavePost = (newPost: any) => {
-    setPosts([newPost, ...posts])
+  const updatedPosts = [newPost, ...posts]
+  setPosts(updatedPosts)
+  try {
+    localStorage.setItem('blog_admin_posts', JSON.stringify(updatedPosts))
+  } catch (err) {
+    console.error('Failed to persist post:', err)
+  }
+}
+
+const handleDeletePost = (id: string | number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    const updatedPosts = posts.filter((p: any) => p.id !== id)
+    setPosts(updatedPosts)
     try {
-      const existing = JSON.parse(localStorage.getItem('blog_admin_posts') || '[]')
-      localStorage.setItem('blog_admin_posts', JSON.stringify([newPost, ...existing]))
-    } catch { /* ignore */ }
+      localStorage.setItem('blog_admin_posts', JSON.stringify(updatedPosts))
+    } catch (err) {
+      console.error('Failed to delete post:', err)
+    }
   }
 
   return (
