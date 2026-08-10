@@ -6,6 +6,7 @@ import Admin, { type AdminPost } from './Admin';
 interface Milestone {
   year: string;
   text: string;
+  color?: string;
 }
 
 interface UserProfile {
@@ -1033,7 +1034,7 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
       {/* Hero */}
       <div className="fade-in mb-16 max-w-2xl">
         <p className="font-mono text-xs tracking-widest uppercase mb-4" style={{ color: 'var(--accent)' }}>
-          — Writing from Edinburgh
+          — Writing from The Philippines
         </p>
         <h1 className="font-serif text-5xl md:text-6xl font-semibold leading-[1.1] mb-5" style={{ color: 'var(--foreground)' }}>
           Welcome to my<br /><em>corner of the internet.</em>
@@ -1159,33 +1160,33 @@ function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile |
 
   const profile: UserProfile = currentUser || {
     email: 'user@example.com',
-    username: 'alexnichols',
-    displayName: 'Alex Nichols',
-    locationRole: 'Edinburgh, Scotland · CS Student',
-    bio1: 'I study computer science by day and build small personal tools by night. I take long walks, read a lot (mostly history and science writing), and maintain a daily journal that has slowly become my most important habit.',
-    bio2: 'This website is my corner of the internet — a place to document thoughts, projects, experiments, and the small things I keep noticing.',
+    username: 'your username',
+    displayName: 'your name',
+    locationRole: 'Location / Roles',
+    bio1: 'Add your Bio1',
+    bio2: 'Add your Bio2',
     avatarUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80',
     currently: [
-      'Studying CS at Edinburgh',
-      'Learning Rust (ownership model is finally clicking)',
-      'Reading: The Order of Time — Carlo Rovelli',
-      'Building Trail Notes, a walking log app'
+      'Quae sunt istae imposturae et doli quos clam in tenebris paras',
+      'Quid nam hoc tempore machinaris ut omnes ludos tui causa facias',
+      'Quae sunt istae nugae ineptiaeque quibus tempus nostrum cotidie teris',
+      'Quid mali ac calliditatis in illo animo tuo subdolo rursus occultas'
     ],
     learning: [
-      'Rust — systems programming',
-      'Local-first software architecture',
-      'Photography (film, mostly)',
-      'How to write clearly about technical things'
+      'Varias res discere mentem excolit',
+      'Cottidie res novas ac diversas disco',
+      'Multas disciplinas cognoscere studeo',
+      'Diversae res intellectum nostrum acuunt'
     ],
-    techStack: ['PYTHON', 'TYPESCRIPT', 'REACT', 'RUST', 'SQLITE', 'TAILWIND', 'VITE', 'NEOVIM'],
+    techStack: ['Add your favourites'],
     philosophy: '"Build things you\'d actually use. Write things you\'d actually want to read. Walk somewhere without a destination at least once a week."',
     milestones: [
-      { year: '2024', text: 'Started CS degree at University of Edinburgh' },
-      { year: '2024', text: 'Built my first real tool — a bookmark organizer' },
-      { year: '2025', text: 'Started keeping a daily journal' },
-      { year: '2025', text: 'First proper project: Journal CLI' },
-      { year: '2026', text: 'Learning Rust, building in public, writing more' }
-    ]
+    { year: '2024', text: 'Started CS degree at University of Edinburgh', color: '#8B9E7E' },
+    { year: '2024', text: 'Built my first real tool — a bookmark organizer', color: '#8B9E7E' },
+    { year: '2025', text: 'Started keeping a daily journal', color: '#8B9E7E' },
+    { year: '2025', text: 'First proper project: Journal CLI', color: '#8B9E7E' },
+    { year: '2026', text: 'Learning Rust, building in public, writing more', color: '#8B9E7E' }
+]
   }
 
   const [formData, setFormData] = useState<UserProfile>(profile)
