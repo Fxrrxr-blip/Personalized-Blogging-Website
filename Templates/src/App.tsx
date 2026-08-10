@@ -1056,299 +1056,56 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
 
 export default function App() {
   const [page, setPage] = useState('Home')
-const [dark, setDark] = useState(false)
-const [selectedPost, setSelectedPost] = useState<typeof INITIAL_POSTS[0] | null>(null)
+  const [dark, setDark] = useState(false)
+  const [selectedPost, setSelectedPost] = useState<typeof INITIAL_POSTS[0] | null>(null)
+  
+  // Dynamic posts state and modal visibility
+  const [posts, setPosts] = useState(INITIAL_POSTS)
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isAuthOpen, setIsAuthOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState<{ email: string; username: string } | null>(null)
 
-// 1. Fetch posts dynamically from backend/localStorage hook
-const fetchedPosts = useAdminPosts()
-const [posts, setPosts] = useState<typeof INITIAL_POSTS>(INITIAL_POSTS)
-
-// 2. Update local posts array when fetchedPosts finishes loading
-useEffect(() => {
-  if (fetchedPosts && fetchedPosts.length > 0) {
-    setPosts(fetchedPosts as any)
+  const handleSavePost = (newPost: any) => {
+    setPosts([newPost, ...posts])
+    try {
+      const existing = JSON.parse(localStorage.getItem('blog_admin_posts') || '[]')
+      localStorage.setItem('blog_admin_posts', JSON.stringify([newPost, ...existing]))
+    } catch { /* ignore */ }
   }
-}, [fetchedPosts])
-
-const [isCreateOpen, setIsCreateOpen] = useState(false)
-const [isAuthOpen, setIsAuthOpen] = useState(false)
-const [currentUser, setCurrentUser] = useState<{ email: string; username: string } | null>(null)
-
-const handleSavePost = async (newPost: any) => {
-  setPosts((prevPosts) => [newPost, ...prevPosts]);
-
-  try {
-    // Send post to FastAPI backend
-    await fetch(`${API_BASE_URL}/api/posts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newPost),
-    });
-  } catch (err) {
-    console.error("Failed to save post to backend server:", err);
-  }
-
-  try {
-    const existing = JSON.parse(localStorage.getItem('blog_admin_posts') || '[]');
-    localStorage.setItem('blog_admin_posts', JSON.stringify([newPost, ...existing]));
-  } catch { /* ignore */ }
-};
 
   return (
     <div className={`min-h-screen ${dark ? 'dark' : ''}`} style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
       <Nav
-  page={page}
-  setPage={setPage}
-  dark={dark}
-  setDark={setDark}
-  currentUser={currentUser}
-  onOpenAuth={() => setIsAuthOpen(true)}
-/>
+        page={page}
+        setPage={setPage}
+        dark={dark}
+        setDark={setDark}
+        currentUser={currentUser}
+        onOpenAuth={() => setIsAuthOpen(true)}
+      />
 
-<main className="max-w-5xl mx-auto px-6 py-8">
-  {/* 1. HOME VIEW */}
-  {page === 'Home' && (
-    <section className="space-y-12">
-      {/* Featured / Hero Post */}
-      {posts.length > 0 && (
-        <div 
-          onClick={() => setSelectedPost(posts[0])}
-          className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
-        >
-          {posts[0].image && (
-            <div className="aspect-[21/9] w-full overflow-hidden bg-stone-100">
-              <img 
-                src={posts[0].image} 
-                alt={posts[0].title} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          )}
-          <div className="p-8">
-            <div className="flex items-center gap-3 text-xs text-stone-500 mb-3">
-              {posts[0].category && <span className="uppercase tracking-wider font-semibold text-stone-700">{posts[0].category}</span>}
-              {posts[0].date && <span>• {posts[0].date}</span>}
-            </div>
-            <h2 className="text-3xl font-serif font-bold text-stone-900 group-hover:text-stone-600 transition-colors">
-              {posts[0].title}
-            </h2>
-            <p className="text-stone-600 mt-3 leading-relaxed text-base">{posts[0].excerpt}</p>
-          </div>
-        </div>
-      )}
+      {page === 'Home' && <HomePage setPage={setPage} setPost={setSelectedPost} extraPosts={posts} />}
 
-      {/* Grid of Remaining Posts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {posts.slice(1).map((post) => (
-          <article 
-            key={post.id} 
-            onClick={() => setSelectedPost(post)}
-            className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-          >
-            {post.image && (
-              <div className="aspect-[16/9] w-full overflow-hidden bg-stone-100">
-                <img 
-                  src={post.image} 
-                  alt={post.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            )}
-            <div className="p-6 flex-1 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-xs text-stone-500 mb-2">
-                  {post.category && <span className="uppercase tracking-wider font-semibold text-stone-700">{post.category}</span>}
-                  {post.date && <span>• {post.date}</span>}
-                </div>
-                <h3 className="font-serif font-bold text-xl text-stone-900 group-hover:text-stone-600 transition-colors">
-                  {post.title}
-                </h3>
-                <p className="text-stone-600 text-sm mt-2 line-clamp-3 leading-relaxed">{post.excerpt}</p>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  )}
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setIsCreateOpen(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg font-mono text-xs tracking-wider uppercase text-white bg-[#8B9E7E] hover:scale-105 transition-transform"
+      >
+        <span className="text-base font-bold">+</span> Write Post
+      </button>
 
-  {/* 2. JOURNAL VIEW */}
-  {page === 'Journal' && (
-    <section>
-      {/* Archive Label */}
-      <span className="text-xs uppercase tracking-widest text-stone-400 font-semibold block mb-1">
-        Archive
-      </span>
+      {/* Modals */}
+      <CreatePostModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSave={handleSavePost}
+      />
 
-      <h1 className="text-5xl font-serif font-bold text-stone-900">Journal</h1>
-      <p className="text-stone-500 mt-2 mb-6 text-base">Things I've written down so I don't forget them.</p>
-
-      {/* Search Input */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search posts..."
-          className="w-full max-w-md p-3 bg-stone-100/80 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all"
-        />
-      </div>
-
-      {/* Sub-category Filter Pills */}
-      <div className="flex gap-2 flex-wrap mb-6">
-        {CATEGORIES.map((tag, idx) => (
-          <button
-            key={tag}
-            className={`px-3.5 py-1.5 text-xs rounded-lg border transition-colors ${
-              idx === 0 
-                ? 'bg-stone-800 text-white border-stone-800' 
-                : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-200'
-            }`}
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
-
-      {/* Post Count Label */}
-      <p className="text-xs font-mono text-stone-400 mb-6">
-        {posts.length} posts
-      </p>
-
-      {/* Journal Grid (3 Columns) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {posts.map((post) => (
-          <article 
-            key={post.id} 
-            onClick={() => setSelectedPost(post)}
-            className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-          >
-            {post.image && (
-              <div className="aspect-[16/9] w-full overflow-hidden bg-stone-100">
-                <img 
-                  src={post.image} 
-                  alt={post.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            )}
-            <div className="p-5 flex flex-col justify-between flex-1">
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">
-                  {post.category || 'Journal'}
-                </span>
-                <h3 className="font-serif font-bold text-lg text-stone-900 mt-1 group-hover:text-stone-600 transition-colors">
-                  {post.title}
-                </h3>
-                <p className="text-stone-600 text-xs mt-2 line-clamp-2">{post.excerpt}</p>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-mono">
-                <span>{post.date}</span>
-                <span>{post.readTime}</span>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  )}
-
-  {/* 3. PROJECTS VIEW */}
-  {page === 'Projects' && (
-    <section>
-      <h1 className="text-5xl font-serif font-bold text-stone-900">Projects</h1>
-      <p className="text-stone-500 mt-2 mb-8 text-base">Things I've built, half-built, or am in the middle of building.</p>
-
-      {/* Category Pills */}
-      <div className="flex gap-2 flex-wrap mb-10">
-        {['All', 'Python', 'Web Development', 'AI', 'Automation', 'Experiments', 'Personal Tools'].map((tag, idx) => (
-          <button
-            key={tag}
-            className={`px-3.5 py-1.5 text-xs rounded-full border transition-colors ${
-              idx === 0 
-                ? 'bg-stone-800 text-white border-stone-800' 
-                : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-200'
-            }`}
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
-
-      {/* Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {posts.map((post) => (
-          <div key={post.id} className="border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all">
-            {post.image && (
-              <div className="aspect-[16/9] w-full overflow-hidden bg-stone-100">
-                <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
-              </div>
-            )}
-            <div className="p-6 flex items-center justify-between">
-              <div>
-                <h3 className="font-serif font-bold text-xl text-stone-900">{post.title}</h3>
-                <p className="text-stone-600 text-sm mt-1">{post.excerpt}</p>
-              </div>
-              <span className="px-2.5 py-1 bg-stone-100 text-stone-600 text-xs font-mono uppercase tracking-wider rounded">
-                Active
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )}
-
-  {/* 4. THOUGHTS VIEW */}
-  {page === 'Thoughts' && (
-    <section>
-      <h1 className="text-5xl font-serif font-bold text-stone-900">Thoughts</h1>
-      <p className="text-stone-500 mt-2 mb-10 text-base">Things I was thinking about at 2am.</p>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { quote: "The best way to understand something is to try to explain it to someone who doesn't already agree with you.", date: "Aug 3", tag: "IDEAS" },
-          { quote: "The best codebases read like they were written by someone who didn't need to prove anything.", date: "Jul 9", tag: "PROGRAMMING" },
-          { quote: "College is mostly about learning how to exist in proximity to people who think differently than you. The coursework is secondary.", date: "Jun 13", tag: "COLLEGE" },
-        ].map((item, idx) => (
-          <div key={idx} className="p-6 bg-stone-50 border border-stone-200 rounded-xl flex flex-col justify-between space-y-6">
-            <p className="font-serif italic text-stone-800 leading-relaxed text-base">"{item.quote}"</p>
-            <div className="flex items-center justify-between text-xs text-stone-400">
-              <span>{item.date}</span>
-              <span className="px-2 py-0.5 bg-stone-200 text-stone-600 font-mono rounded text-[10px] uppercase">{item.tag}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )}
-
-  {/* 5. ABOUT VIEW */}
-  {page === 'About' && (
-    <section className="max-w-3xl">
-      <h1 className="text-5xl font-serif font-bold text-stone-900 mb-8">About Me</h1>
-      
-      <div className="flex flex-col md:flex-row gap-8 items-start mb-8">
-        <div className="w-48 h-48 rounded-xl overflow-hidden bg-stone-200 flex-shrink-0 border border-stone-300">
-          <img 
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&fit=crop" 
-            alt="Alex Nichols" 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="space-y-4 text-stone-700 leading-relaxed">
-          <h2 className="text-2xl font-serif font-bold text-stone-900">Alex Nichols</h2>
-          <p className="text-sm text-stone-500 font-mono">Edinburgh, Scotland • CS Student</p>
-          <p>
-            I study computer science by day and build small personal tools by night. I take long walks, read a lot (mostly history and science writing), and maintain a daily journal that has slowly become my most important habit.
-          </p>
-          <p>
-            This website is my corner of the internet — a place to document thoughts, projects, experiments, and the small things I keep noticing.
-          </p>
-        </div>
-      </div>
-    </section>
-  )}
-</main>
-</div>
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onLoginSuccess={(user) => setCurrentUser(user)}
+      />
+    </div>
   )
 }
