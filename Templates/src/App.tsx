@@ -383,8 +383,9 @@ const CATEGORIES = ['All', 'Personal', 'Technology', 'Programming', 'Projects', 
 
 // ─── Journal Page ────────────────────────────────────────────────────────────
 
-function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS }: {setPage: (p: string) => void; setPost: (p: any) => void; extraPosts?: any[] }) {  const [query, setQuery] = useState('')
-  const [activeCategory, setActiveCategory] = useState('All')
+function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (p: string) => void; setPost: (p: any) => void; extraPosts?: any[] }) {
+  const onDelete = (arguments[0] as any)?.onDelete;  const [activeCategory, setActiveCategory] = useState('All') 
+  const [query, setQuery] = useState('');
   const filtered = (extraPosts || []).filter((p: any) => {
     if (!p) return false
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory
@@ -452,8 +453,22 @@ function JournalPage({ setPage, setPost, extraPosts = INITIAL_POSTS }: {setPage:
 
       <div className="masonry-grid stagger">
         {filtered.map(p => (
+        <div key={p.id}>
           <PostCard key={p.id} post={p} onClick={() => { setPost(p); setPage('Post') }} />
-        ))}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm("Delete this journal post?")) {
+                onDelete?.(p.id);
+              }
+            }}
+            className="text-xs font-mono text-red-500 hover:text-red-700 mt-2 text-right block w-full"
+          >
+            🗑 Delete
+          </button>
+        </div>
+      ))}
         {filtered.length === 0 && (
           <p className="font-serif italic text-lg" style={{ color: 'var(--muted-foreground)' }}>Nothing matches that search.</p>
         )}
@@ -796,6 +811,23 @@ function CreatePostModal({
                 className="w-full p-3 rounded border text-sm font-mono leading-relaxed"
                 style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
               />
+            </div>
+
+            {/* APPEND INSIDE DRAFT MODAL FORM */}
+            <div className="mb-4">
+              <label className="block text-xs font-mono mb-2" style={{ color: 'var(--muted-foreground)' }}>
+                Publish To:
+              </label>
+              <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+                className="w-full p-2 text-sm rounded border bg-transparent font-mono"
+                style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              >
+                <option value="Journal">Journal Page</option>
+                <option value="Projects">Projects Page</option>
+                <option value="Thoughts">Thoughts Page</option>
+              </select>
             </div>
 
             <div className="flex justify-end gap-3 mt-4 border-t pt-4" style={{ borderColor: 'var(--border)' }}>
@@ -1490,6 +1522,24 @@ export default function App() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null)
+
+  // Example: Filter out deleted IDs from static lists in state initialization
+const [deletedIds, setDeletedIds] = useState<Array<string | number>>(() => {
+  try {
+    return JSON.parse(localStorage.getItem('blog_deleted_ids') || '[]');
+  } catch {
+    return [];
+  }
+});
+
+const handleDeletePost = (id: string | number) => {
+  setDeletedIds((prev) => {
+    const updated = [...prev, id];
+    localStorage.setItem('blog_deleted_ids', JSON.stringify(updated));
+    return updated;
+  });
+};
+
   const handleSavePost = (newPost: any) => {
     setPosts([newPost, ...posts])
     try {
@@ -1516,7 +1566,7 @@ export default function App() {
   <div className="max-w-6xl mx-auto px-6 py-14">
     <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Projects</h1>
     <div className="grid gap-6 md:grid-cols-2">
-      {PROJECTS.map((item: any) => (
+      {PROJECTS.filter((item: any) => !deletedIds.includes(item.id)).map((item: any) => (
         <div key={item.id} className="p-6 rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
           <h2 className="font-semibold text-lg mb-2">{item.name}</h2>
           <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>{item.description}</p>
@@ -1525,6 +1575,18 @@ export default function App() {
               <span key={t} className="px-2 py-0.5 text-xs font-mono rounded" style={{ border: '1px solid var(--border)' }}>{t}</span>
             ))}
           </div>
+          <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (window.confirm("Delete this project?")) {
+              handleDeletePost(item.id);
+            }
+          }}
+  className="text-xs font-mono text-red-500 hover:text-red-700 mt-3 text-right block w-full"
+>
+  🗑 Delete Project
+</button>
         </div>
       ))}
     </div>
@@ -1546,7 +1608,7 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {THOUGHTS.map(t => (
+            {THOUGHTS.filter((t: any) => !deletedIds.includes(t.id)).map((t: any) => (
               <div
                 key={t.id}
                 className="p-6 rounded-[6px] flex flex-col justify-between card-hover"
@@ -1560,13 +1622,28 @@ export default function App() {
                     {t.date}
                   </span>
                   <div className="flex flex-wrap gap-1.5">
-                    {t.tags.map(tag => (
+                    {t.tags.map((tag: string) => (
                       <span key={tag} className="tag-chip uppercase">
                         {tag}
                       </span>
                     ))}
                   </div>
                 </div>
+
+                <button
+
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm("Delete this thought?")) {
+                    handleDeletePost(t.id);
+                  }
+                }}
+                className="text-xs font-mono text-red-500 hover:text-red-700 mt-3 text-right block w-full"
+              >
+                🗑 Delete Thought
+              </button>
+
               </div>
             ))}
           </div>
