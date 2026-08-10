@@ -1195,8 +1195,31 @@ export default function App() {
 
 {page === 'About' && (
   <div className="max-w-4xl mx-auto px-6 py-14">
-    <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>About</h1>
-    <p style={{ color: 'var(--muted-foreground)' }}>Personal blog and digital space.</p>
+    <div className="fade-in mb-8">
+      <span className="category-label">Profile</span>
+      <h1 className="font-serif text-4xl md:text-5xl font-semibold mt-2 mb-3" style={{ color: 'var(--foreground)' }}>
+        {currentUser ? currentUser.username : 'About'}
+      </h1>
+      <p className="text-base font-light" style={{ color: 'var(--muted-foreground)' }}>
+        {currentUser ? currentUser.email : 'Personal blog and digital space.'}
+      </p>
+    </div>
+
+    {currentUser ? (
+      <div className="p-6 rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+        <h2 className="font-serif text-xl font-medium mb-2" style={{ color: 'var(--foreground)' }}>
+          Signed in Account
+        </h2>
+        <div className="space-y-2 text-sm font-mono" style={{ color: 'var(--muted-foreground)' }}>
+          <p><strong className="text-foreground">Username:</strong> {currentUser.username}</p>
+          <p><strong className="text-foreground">Email:</strong> {currentUser.email}</p>
+        </div>
+      </div>
+    ) : (
+      <p style={{ color: 'var(--muted-foreground)' }}>
+        Please sign in to view your profile details.
+      </p>
+    )}
   </div>
 )}
         {page === 'Post' && selectedPost && <PostPage post={selectedPost} setPage={setPage} />}
