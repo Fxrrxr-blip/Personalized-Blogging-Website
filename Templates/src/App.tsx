@@ -3,6 +3,14 @@ import { API_BASE_URL } from "./api";
 import { AuthModal as RemoteAuthModal } from "./AuthModal";
 import Admin, { type AdminPost } from './Admin';
 
+interface UserProfile {
+  email: string;
+  username: string;
+  displayName?: string;
+  bio?: string;
+  avatarUrl?: string;
+}
+
 function useAdminPosts(): AdminPost[] {
   const [posts, setPosts] = useState<AdminPost[]>([]);
 
@@ -1134,6 +1142,127 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
 
 // ─── Main App Shell ───────────────────────────────────────────────────────────
 
+function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile | null; setCurrentUser: (user: UserProfile) => void }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [displayName, setDisplayName] = useState(currentUser?.displayName || currentUser?.username || 'Guest')
+  const [bio, setBio] = useState(currentUser?.bio || 'Personal blog and digital space.')
+  const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl || '')
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!currentUser) return
+    const updatedUser: UserProfile = {
+      ...currentUser,
+      displayName,
+      bio,
+      avatarUrl,
+    }
+    setCurrentUser(updatedUser)
+    localStorage.setItem('blog_user_profile', JSON.stringify(updatedUser))
+    setIsEditing(false)
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-14">
+        <h1 className="font-serif text-4xl font-semibold mb-3" style={{ color: 'var(--foreground)' }}>About</h1>
+        <p style={{ color: 'var(--muted-foreground)' }}>Personal blog and digital space.</p>
+      </div>
+    )
+  }
+
+
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-14">
+      <div className="flex items-center gap-6 mb-8">
+        {currentUser.avatarUrl ? (
+          <img src={currentUser.avatarUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border border-stone-700" />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-stone-800 flex items-center justify-center font-bold text-2xl uppercase text-stone-300">
+            {(currentUser.displayName || currentUser.username)[0]}
+          </div>
+        )}
+
+        <div>
+          <h1 className="font-serif text-4xl font-semibold mb-1" style={{ color: 'var(--foreground)' }}>
+            {currentUser.displayName || currentUser.username}
+          </h1>
+          <p className="text-xs font-mono text-stone-400">@{currentUser.username}</p>
+        </div>
+      </div>
+
+      <p className="text-base font-light mb-8 max-w-xl" style={{ color: 'var(--muted-foreground)' }}>
+        {currentUser.bio || 'Personal blog and digital space.'}
+      </p>
+
+      <button
+        onClick={() => setIsEditing(true)}
+        className="px-4 py-2 text-xs font-mono rounded border transition-all hover:bg-stone-800"
+        style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
+      >
+        Edit Profile
+      </button>
+
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h2 className="text-lg font-serif font-bold text-stone-100 mb-4">Edit Profile</h2>
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono text-stone-400 mb-1">Display Name</label>
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded bg-stone-800 border border-stone-700 text-stone-100 outline-none focus:border-stone-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-stone-400 mb-1">Avatar Image URL</label>
+                <input
+                  type="url"
+                  value={avatarUrl}
+                  placeholder="https://example.com/avatar.jpg"
+                  onChange={e => setAvatarUrl(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded bg-stone-800 border border-stone-700 text-stone-100 outline-none focus:border-stone-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-stone-400 mb-1">Bio</label>
+                <textarea
+                  rows={3}
+                  value={bio}
+                  onChange={e => setBio(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded bg-stone-800 border border-stone-700 text-stone-100 outline-none focus:border-stone-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 text-xs font-mono text-stone-400 hover:text-stone-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-mono bg-stone-100 text-stone-900 font-semibold rounded hover:bg-stone-200"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const [page, setPage] = useState('Home')
   const [dark, setDark] = useState(false)
@@ -1143,8 +1272,7 @@ export default function App() {
   const [posts, setPosts] = useState(INITIAL_POSTS)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<{ email: string; username: string } | null>(null)
-
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null)
   const handleSavePost = (newPost: any) => {
     setPosts([newPost, ...posts])
     try {
@@ -1194,34 +1322,12 @@ export default function App() {
 )}
 
 {page === 'About' && (
-  <div className="max-w-4xl mx-auto px-6 py-14">
-    <div className="fade-in mb-8">
-      <span className="category-label">Profile</span>
-      <h1 className="font-serif text-4xl md:text-5xl font-semibold mt-2 mb-3" style={{ color: 'var(--foreground)' }}>
-        {currentUser ? currentUser.username : 'About'}
-      </h1>
-      <p className="text-base font-light" style={{ color: 'var(--muted-foreground)' }}>
-        {currentUser ? currentUser.email : 'Personal blog and digital space.'}
-      </p>
-    </div>
-
-    {currentUser ? (
-      <div className="p-6 rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
-        <h2 className="font-serif text-xl font-medium mb-2" style={{ color: 'var(--foreground)' }}>
-          Signed in Account
-        </h2>
-        <div className="space-y-2 text-sm font-mono" style={{ color: 'var(--muted-foreground)' }}>
-          <p><strong className="text-foreground">Username:</strong> {currentUser.username}</p>
-          <p><strong className="text-foreground">Email:</strong> {currentUser.email}</p>
-        </div>
-      </div>
-    ) : (
-      <p style={{ color: 'var(--muted-foreground)' }}>
-        Please sign in to view your profile details.
-      </p>
-    )}
-  </div>
+  <AboutPage 
+    currentUser={currentUser} 
+    setCurrentUser={setCurrentUser} 
+  />
 )}
+
         {page === 'Post' && selectedPost && <PostPage post={selectedPost} setPage={setPage} />}
       </main>
 
