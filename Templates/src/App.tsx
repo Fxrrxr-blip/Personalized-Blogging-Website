@@ -3,12 +3,24 @@ import { API_BASE_URL } from "./api";
 import { AuthModal as RemoteAuthModal } from "./AuthModal";
 import Admin, { type AdminPost } from './Admin';
 
+interface Milestone {
+  year: string;
+  text: string;
+}
+
 interface UserProfile {
   email: string;
   username: string;
-  displayName?: string;
-  bio?: string;
-  avatarUrl?: string;
+  displayName: string;
+  locationRole: string; // e.g. "Edinburgh, Scotland · CS Student"
+  bio1: string;
+  bio2: string;
+  avatarUrl: string;
+  currently: string[];
+  learning: string[];
+  techStack: string[];
+  philosophy: string;
+  milestones: Milestone[];
 }
 
 function useAdminPosts(): AdminPost[] {
@@ -1144,116 +1156,193 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
 
 function AboutPage({ currentUser, setCurrentUser }: { currentUser: UserProfile | null; setCurrentUser: (user: UserProfile) => void }) {
   const [isEditing, setIsEditing] = useState(false)
-  const [displayName, setDisplayName] = useState(currentUser?.displayName || currentUser?.username || 'Guest')
-  const [bio, setBio] = useState(currentUser?.bio || 'Personal blog and digital space.')
-  const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatarUrl || '')
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const profile: UserProfile = currentUser || {
+    email: 'user@example.com',
+    username: 'alexnichols',
+    displayName: 'Alex Nichols',
+    locationRole: 'Edinburgh, Scotland · CS Student',
+    bio1: 'I study computer science by day and build small personal tools by night. I take long walks, read a lot (mostly history and science writing), and maintain a daily journal that has slowly become my most important habit.',
+    bio2: 'This website is my corner of the internet — a place to document thoughts, projects, experiments, and the small things I keep noticing.',
+    avatarUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80',
+    currently: [
+      'Studying CS at Edinburgh',
+      'Learning Rust (ownership model is finally clicking)',
+      'Reading: The Order of Time — Carlo Rovelli',
+      'Building Trail Notes, a walking log app'
+    ],
+    learning: [
+      'Rust — systems programming',
+      'Local-first software architecture',
+      'Photography (film, mostly)',
+      'How to write clearly about technical things'
+    ],
+    techStack: ['PYTHON', 'TYPESCRIPT', 'REACT', 'RUST', 'SQLITE', 'TAILWIND', 'VITE', 'NEOVIM'],
+    philosophy: '"Build things you\'d actually use. Write things you\'d actually want to read. Walk somewhere without a destination at least once a week."',
+    milestones: [
+      { year: '2024', text: 'Started CS degree at University of Edinburgh' },
+      { year: '2024', text: 'Built my first real tool — a bookmark organizer' },
+      { year: '2025', text: 'Started keeping a daily journal' },
+      { year: '2025', text: 'First proper project: Journal CLI' },
+      { year: '2026', text: 'Learning Rust, building in public, writing more' }
+    ]
+  }
+
+  const [formData, setFormData] = useState<UserProfile>(profile)
+
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!currentUser) return
-    const updatedUser: UserProfile = {
-      ...currentUser,
-      displayName,
-      bio,
-      avatarUrl,
-    }
-    setCurrentUser(updatedUser)
-    localStorage.setItem('blog_user_profile', JSON.stringify(updatedUser))
+    setCurrentUser(formData)
+    localStorage.setItem('blog_user_profile', JSON.stringify(formData))
     setIsEditing(false)
   }
 
-  if (!currentUser) {
-    return (
-      <div className="max-w-4xl mx-auto px-6 py-14">
-        <h1 className="font-serif text-4xl font-semibold mb-3" style={{ color: 'var(--foreground)' }}>About</h1>
-        <p style={{ color: 'var(--muted-foreground)' }}>Personal blog and digital space.</p>
-      </div>
-    )
-  }
-
-
   return (
-    <div className="max-w-4xl mx-auto px-6 py-14">
-      <div className="flex items-center gap-6 mb-8">
-        {currentUser.avatarUrl ? (
-          <img src={currentUser.avatarUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border border-stone-700" />
-        ) : (
-          <div className="w-20 h-20 rounded-full bg-stone-800 flex items-center justify-center font-bold text-2xl uppercase text-stone-300">
-            {(currentUser.displayName || currentUser.username)[0]}
-          </div>
-        )}
+    <div className="max-w-4xl mx-auto px-6 py-10 font-sans">
+      <div className="flex justify-between items-center mb-6">
+        <span className="text-xs font-mono tracking-widest uppercase text-stone-500">A PERSON</span>
+        <button 
+          onClick={() => { setFormData(profile); setIsEditing(true); }}
+          className="text-xs font-mono px-3 py-1.5 rounded border border-stone-700 hover:bg-stone-800 transition-colors"
+          style={{ color: 'var(--foreground)' }}
+        >
+          Edit Profile
+        </button>
+      </div>
 
-        <div>
-          <h1 className="font-serif text-4xl font-semibold mb-1" style={{ color: 'var(--foreground)' }}>
-            {currentUser.displayName || currentUser.username}
-          </h1>
-          <p className="text-xs font-mono text-stone-400">@{currentUser.username}</p>
+      <h1 className="font-serif text-4xl md:text-5xl font-semibold mb-10" style={{ color: 'var(--foreground)' }}>
+        About Me
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start mb-14">
+        <div className="md:col-span-4">
+          <img 
+            src={profile.avatarUrl} 
+            alt={profile.displayName} 
+            className="w-full aspect-square object-cover rounded-xl shadow-sm"
+          />
+        </div>
+        <div className="md:col-span-8 space-y-4">
+          <div>
+            <h2 className="font-serif text-2xl font-medium" style={{ color: 'var(--foreground)' }}>{profile.displayName}</h2>
+            <p className="text-xs font-mono text-stone-500 mt-1">{profile.locationRole}</p>
+          </div>
+          <p className="text-sm leading-relaxed text-stone-400 font-light">{profile.bio1}</p>
+          <p className="text-sm leading-relaxed text-stone-400 font-light">{profile.bio2}</p>
         </div>
       </div>
 
-      <p className="text-base font-light mb-8 max-w-xl" style={{ color: 'var(--muted-foreground)' }}>
-        {currentUser.bio || 'Personal blog and digital space.'}
-      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-14">
+        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
+          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">CURRENTLY</h3>
+          <ul className="space-y-2.5 text-xs text-stone-300 font-light">
+            {profile.currently.map((item, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-stone-500">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      <button
-        onClick={() => setIsEditing(true)}
-        className="px-4 py-2 text-xs font-mono rounded border transition-all hover:bg-stone-800"
-        style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
-      >
-        Edit Profile
-      </button>
+        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
+          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">THINGS I'M LEARNING</h3>
+          <ul className="space-y-2.5 text-xs text-stone-300 font-light">
+            {profile.learning.map((item, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="text-stone-500">•</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-      {/* Edit Profile Modal */}
+        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40">
+          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">FAVOURITE TECHNOLOGIES</h3>
+          <div className="flex flex-wrap gap-2">
+            {profile.techStack.map((tech) => (
+              <span key={tech} className="px-2.5 py-1 text-[10px] font-mono rounded border border-stone-800 bg-stone-950/60 text-stone-300 tracking-wider">
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-6 rounded-xl border border-stone-800/80 bg-stone-900/40 flex flex-col justify-between">
+          <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-4">PERSONAL PHILOSOPHY</h3>
+          <p className="font-serif italic text-sm text-stone-300 leading-relaxed">
+            {profile.philosophy}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-12">
+        <h3 className="text-xs font-mono tracking-widest uppercase text-stone-500 mb-6">MILESTONES</h3>
+        <div className="space-y-4">
+          {profile.milestones.map((ms, i) => (
+            <div key={i} className="flex items-center gap-6 text-xs">
+              <span className="font-mono text-stone-500 w-10 text-right">{ms.year}</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-700/60 flex-shrink-0" />
+              <span className="text-stone-300 font-light">{ms.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {isEditing && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-lg font-serif font-bold text-stone-100 mb-4">Edit Profile</h2>
-            <form onSubmit={handleSaveProfile} className="space-y-4">
-              <div>
-                <label className="block text-xs font-mono text-stone-400 mb-1">Display Name</label>
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={e => setDisplayName(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded bg-stone-800 border border-stone-700 text-stone-100 outline-none focus:border-stone-500"
-                />
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h2 className="text-xl font-serif font-bold text-stone-100 mb-6">Edit Profile Page</h2>
+            <form onSubmit={handleSave} className="space-y-4 text-xs font-mono">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-stone-400 mb-1">Display Name</label>
+                  <input type="text" value={formData.displayName} onChange={e => setFormData({...formData, displayName: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                </div>
+                <div>
+                  <label className="block text-stone-400 mb-1">Location & Role</label>
+                  <input type="text" value={formData.locationRole} onChange={e => setFormData({...formData, locationRole: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-stone-400 mb-1">Avatar Image URL</label>
-                <input
-                  type="url"
-                  value={avatarUrl}
-                  placeholder="https://example.com/avatar.jpg"
-                  onChange={e => setAvatarUrl(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded bg-stone-800 border border-stone-700 text-stone-100 outline-none focus:border-stone-500"
-                />
+                <label className="block text-stone-400 mb-1">Avatar Image URL</label>
+                <input type="text" value={formData.avatarUrl} onChange={e => setFormData({...formData, avatarUrl: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-stone-400 mb-1">Bio</label>
-                <textarea
-                  rows={3}
-                  value={bio}
-                  onChange={e => setBio(e.target.value)}
-                  className="w-full px-3 py-2 text-sm rounded bg-stone-800 border border-stone-700 text-stone-100 outline-none focus:border-stone-500"
-                />
+                <label className="block text-stone-400 mb-1">Bio Paragraph 1</label>
+                <textarea rows={2} value={formData.bio1} onChange={e => setFormData({...formData, bio1: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100 font-sans text-xs" />
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 text-xs font-mono text-stone-400 hover:text-stone-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-xs font-mono bg-stone-100 text-stone-900 font-semibold rounded hover:bg-stone-200"
-                >
-                  Save Changes
-                </button>
+              <div>
+                <label className="block text-stone-400 mb-1">Bio Paragraph 2</label>
+                <textarea rows={2} value={formData.bio2} onChange={e => setFormData({...formData, bio2: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100 font-sans text-xs" />
+              </div>
+
+              <div>
+                <label className="block text-stone-400 mb-1">Currently List (comma-separated)</label>
+                <input type="text" value={formData.currently.join(', ')} onChange={e => setFormData({...formData, currently: e.target.value.split(',').map(s => s.trim())})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+              </div>
+
+              <div>
+                <label className="block text-stone-400 mb-1">Learning List (comma-separated)</label>
+                <input type="text" value={formData.learning.join(', ')} onChange={e => setFormData({...formData, learning: e.target.value.split(',').map(s => s.trim())})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+              </div>
+
+              <div>
+                <label className="block text-stone-400 mb-1">Technologies (comma-separated)</label>
+                <input type="text" value={formData.techStack.join(', ')} onChange={e => setFormData({...formData, techStack: e.target.value.split(',').map(s => s.trim().toUpperCase())})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100" />
+              </div>
+
+              <div>
+                <label className="block text-stone-400 mb-1">Personal Philosophy</label>
+                <textarea rows={2} value={formData.philosophy} onChange={e => setFormData({...formData, philosophy: e.target.value})} className="w-full p-2 bg-stone-800 border border-stone-700 rounded text-stone-100 font-serif italic text-xs" />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-stone-800">
+                <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 text-stone-400 hover:text-stone-200">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-stone-100 text-stone-900 font-bold rounded hover:bg-stone-200">Save Changes</button>
               </div>
             </form>
           </div>
@@ -1349,7 +1438,22 @@ export default function App() {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
-        onLoginSuccess={(user) => setCurrentUser(user)}
+        onLoginSuccess={(user) => {
+        setCurrentUser({
+        email: user.email,
+        username: user.username,
+        displayName: user.username,
+        locationRole: 'Edinburgh, Scotland · CS Student',
+        bio1: 'I study computer science by day and build small personal tools by night.',
+        bio2: 'This website is my corner of the internet.',
+        avatarUrl: '',
+        currently: ['Building projects'],
+        learning: ['TypeScript', 'React'],
+        techStack: ['TYPESCRIPT', 'REACT'],
+        philosophy: '"Build things you\'d actually use."',
+        milestones: [{ year: '2026', text: 'Joined the platform' }]
+      })
+    }}
       />
     </div>
   )
