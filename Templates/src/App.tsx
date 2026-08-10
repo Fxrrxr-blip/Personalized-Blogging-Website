@@ -1599,29 +1599,31 @@ useEffect(() => {
   <div className="max-w-6xl mx-auto px-6 py-14">
     <h1 className="font-serif text-4xl font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Projects</h1>
     <div className="grid gap-6 md:grid-cols-2">
-      {[...posts.filter((p: any) => p.category === 'Projects'), ...PROJECTS].filter((item: any) => !deletedIds.includes(item.id)).map((item: any) => (
-        <div key={item.id} className="p-6 rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
-          <h2 className="font-semibold text-lg mb-2">{item.name}</h2>
-          <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>{item.description}</p>
-          <div className="flex flex-wrap gap-2">
-            {item.tech?.map((t: string) => (
-              <span key={t} className="px-2 py-0.5 text-xs font-mono rounded" style={{ border: '1px solid var(--border)' }}>{t}</span>
-            ))}
+      {[...posts.filter((p: any) => p.category === 'Projects'), ...PROJECTS]
+        .filter((item: any) => !deletedIds.includes(item.id))
+        .map((item: any) => (
+          <div key={item.id} className="p-6 rounded-xl border" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}>
+            <h2 className="font-semibold text-lg mb-2">{item.title || item.name}</h2>
+            <p className="text-sm mb-4" style={{ color: 'var(--muted-foreground)' }}>{item.excerpt || item.description}</p>
+            <div className="flex flex-wrap gap-2">
+              {(item.tech || item.tags || []).map((t: string) => (
+                <span key={t} className="px-2 py-0.5 text-xs font-mono rounded" style={{ border: '1px solid var(--border)' }}>{t}</span>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm("Delete this project?")) {
+                  handleDeletePost(item.id);
+                }
+              }}
+              className="text-xs font-mono text-red-500 hover:text-red-700 mt-3 text-right block w-full"
+            >
+              🗑 Delete Project
+            </button>
           </div>
-          <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (window.confirm("Delete this project?")) {
-              handleDeletePost(item.id);
-            }
-          }}
-  className="text-xs font-mono text-red-500 hover:text-red-700 mt-3 text-right block w-full"
->
-  🗑 Delete Project
-</button>
-        </div>
-      ))}
+        ))}
     </div>
   </div>
 )}
