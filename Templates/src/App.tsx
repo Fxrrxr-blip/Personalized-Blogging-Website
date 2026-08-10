@@ -1056,14 +1056,23 @@ function HomePage({ setPage, setPost, extraPosts = INITIAL_POSTS }: { setPage: (
 
 export default function App() {
   const [page, setPage] = useState('Home')
-  const [dark, setDark] = useState(false)
-  const [selectedPost, setSelectedPost] = useState<typeof INITIAL_POSTS[0] | null>(null)
-  
-  // Dynamic posts state and modal visibility
-  const [posts, setPosts] = useState(INITIAL_POSTS)
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isAuthOpen, setIsAuthOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<{ email: string; username: string } | null>(null)
+const [dark, setDark] = useState(false)
+const [selectedPost, setSelectedPost] = useState<typeof INITIAL_POSTS[0] | null>(null)
+
+// 1. Fetch posts dynamically from backend/localStorage hook
+const fetchedPosts = useAdminPosts()
+const [posts, setPosts] = useState<typeof INITIAL_POSTS>(INITIAL_POSTS)
+
+// 2. Update local posts array when fetchedPosts finishes loading
+useEffect(() => {
+  if (fetchedPosts && fetchedPosts.length > 0) {
+    setPosts(fetchedPosts as any)
+  }
+}, [fetchedPosts])
+
+const [isCreateOpen, setIsCreateOpen] = useState(false)
+const [isAuthOpen, setIsAuthOpen] = useState(false)
+const [currentUser, setCurrentUser] = useState<{ email: string; username: string } | null>(null)
 
 const handleSavePost = async (newPost: any) => {
   setPosts((prevPosts) => [newPost, ...prevPosts]);
@@ -1166,24 +1175,29 @@ const handleSavePost = async (newPost: any) => {
   {/* 2. JOURNAL VIEW */}
   {page === 'Journal' && (
     <section>
+      {/* Archive Label */}
+      <span className="text-xs uppercase tracking-widest text-stone-400 font-semibold block mb-1">
+        Archive
+      </span>
+
       <h1 className="text-5xl font-serif font-bold text-stone-900">Journal</h1>
-      <p className="text-stone-500 mt-2 mb-8 text-base">Things I've written down so I don't forget them.</p>
+      <p className="text-stone-500 mt-2 mb-6 text-base">Things I've written down so I don't forget them.</p>
 
       {/* Search Input */}
       <div className="mb-6">
         <input
           type="text"
           placeholder="Search posts..."
-          className="w-full max-w-md p-3.5 bg-stone-100/80 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all"
+          className="w-full max-w-md p-3 bg-stone-100/80 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all"
         />
       </div>
 
       {/* Sub-category Filter Pills */}
-      <div className="flex gap-2 flex-wrap mb-10">
-        {['All', 'Personal', 'Technology', 'Programming', 'Projects', 'College', 'Ideas', 'Lessons', 'Random'].map((tag, idx) => (
+      <div className="flex gap-2 flex-wrap mb-6">
+        {CATEGORIES.map((tag, idx) => (
           <button
             key={tag}
-            className={`px-3.5 py-1.5 text-xs rounded-full border transition-colors ${
+            className={`px-3.5 py-1.5 text-xs rounded-lg border transition-colors ${
               idx === 0 
                 ? 'bg-stone-800 text-white border-stone-800' 
                 : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-200'
@@ -1194,13 +1208,18 @@ const handleSavePost = async (newPost: any) => {
         ))}
       </div>
 
-      {/* Journal Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Post Count Label */}
+      <p className="text-xs font-mono text-stone-400 mb-6">
+        {posts.length} posts
+      </p>
+
+      {/* Journal Grid (3 Columns) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {posts.map((post) => (
           <article 
             key={post.id} 
             onClick={() => setSelectedPost(post)}
-            className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
+            className="cursor-pointer group border border-stone-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
           >
             {post.image && (
               <div className="aspect-[16/9] w-full overflow-hidden bg-stone-100">
@@ -1211,12 +1230,21 @@ const handleSavePost = async (newPost: any) => {
                 />
               </div>
             )}
-            <div className="p-6">
-              <span className="text-xs uppercase tracking-wider text-stone-500 font-semibold">{post.category || 'Journal'}</span>
-              <h3 className="font-serif font-bold text-xl text-stone-900 mt-1 group-hover:text-stone-600 transition-colors">
-                {post.title}
-              </h3>
-              <p className="text-stone-600 text-sm mt-2 line-clamp-2">{post.excerpt}</p>
+            <div className="p-5 flex flex-col justify-between flex-1">
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold">
+                  {post.category || 'Journal'}
+                </span>
+                <h3 className="font-serif font-bold text-lg text-stone-900 mt-1 group-hover:text-stone-600 transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-stone-600 text-xs mt-2 line-clamp-2">{post.excerpt}</p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400 font-mono">
+                <span>{post.date}</span>
+                <span>{post.readTime}</span>
+              </div>
             </div>
           </article>
         ))}
