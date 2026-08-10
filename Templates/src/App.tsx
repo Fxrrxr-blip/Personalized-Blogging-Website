@@ -1455,6 +1455,7 @@ export default function App() {
         milestones: [{ year: '2026', text: 'Joined the platform' }]
       })}}
       />
+      <Footer setPage={setPage} />
     </div>
   )
 }
