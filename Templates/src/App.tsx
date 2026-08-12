@@ -1728,11 +1728,18 @@ useEffect(() => {
         onClose={() => setIsAuthOpen(false)}
         onLoginSuccess={(user) => {
           const userProfileKey = `blog_user_profile_${user.email}`;
-          const savedProfile = localStorage.getItem(userProfileKey);
+          // 1. Try email-specific saved profile
+          // 2. Try generic saved profile (if created before logging in)
+          const savedProfile = localStorage.getItem(userProfileKey) || localStorage.getItem('blog_user_profile');
           
           if (savedProfile) {
             try {
-              setCurrentUser(JSON.parse(savedProfile));
+              const parsed = JSON.parse(savedProfile);
+              // Ensure email and username match the logged in account
+              const updatedProfile = { ...parsed, email: user.email, username: user.username };
+              setCurrentUser(updatedProfile);
+              // Migrate/persist to user-scoped key so it stays linked to this login
+              localStorage.setItem(userProfileKey, JSON.stringify(updatedProfile));
               return;
             } catch { /* ignore */ }
           }
